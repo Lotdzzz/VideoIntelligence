@@ -1,0 +1,71 @@
+# 配置微服务端口号
+server:
+  port: ${GATEWAY_PORT:8080}
+
+# 配置扩展yaml文件
+spring:
+  profiles:
+    active: ${GATEWAY_PROFILES}
+  # 配置服务名
+  application:
+    name: gateway
+
+  # spring cloud nacos配置 命名空间默认
+  cloud:
+    nacos:
+      # 服务发现地址 密码默认为空
+      discovery:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+      # 配置中心地址 密码默认为空
+      config:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+        # 实时刷新
+        refresh-enabled: true
+        # 组 默认
+        group: ${NACOS_GROUP}
+    # 网关配置
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: auth
+              uri: lb://auth-service
+              predicates:
+                - Path=/auth/**
+              filters:
+                - StripPrefix=0
+            - id: auth-monitor
+              uri: lb://auth-monitor-service
+              predicates:
+                - Path=/certification/**
+              filters:
+                - StripPrefix=0
+            - id: system-monitor
+              uri: lb://system-monitor-service
+              predicates:
+                - Path=/os/**
+              filters:
+                - StripPrefix=0
+            - id: file
+              uri: lb://file-service
+              predicates:
+                - Path=/upload/**
+              filters:
+                - StripPrefix=0
+          default-filters:
+            #将所有的请求头（包含 X-Forwarded-For）透传给下游微服务
+            - PreserveHostHeader
+          forwarded:
+            enabled: true
+  # 从nacos配置中心导入的文件
+  config:
+    import:
+      - optional:nacos:application-gateway.yaml?refreshEnabled=true&group=${NACOS_GROUP}
+      - optional:nacos:application-common.yaml?refreshEnabled=true&group=${NACOS_GROUP}
+      - optional:nacos:application-auth.yaml?refreshEnabled=true&group=${NACOS_GROUP}
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

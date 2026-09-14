@@ -1,0 +1,20 @@
+server:
+  port: ${AUTH_PORT:1000}
+spring:
+  profiles:
+    active: ${AUTH_PROFILES}
+  application:
+    name: auth-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+      config:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+        group: ${NACOS_GROUP}
+  config:
+    import:
+      - optional:nacos:application-auth.yaml?refreshEnabled=true&group=${NACOS_GROUP}
+      - optional:nacos:application-common.yaml?refreshEnabled=true&group=${NACOS_GROUP}
+      - optional:nacos:application-dev.yaml?refreshEnabled=true&group=${NACOS_GROUP}
+      - optional:nacos:application-ai.yaml?refreshEnabled=true&group=${NACOS_GROUP}

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+    <modules>
+        <module>dotm-framework</module>
+        <module>dotm-gateway</module>
+        <module>dotm-auth</module>
+        <module>dotm-monitor</module>
+        <module>dotm-file</module>
+        <module>vi-service</module>
+    </modules>
+
+    <groupId>com.dotm</groupId>
+    <artifactId>DotmCloud</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <jdk.version>21</jdk.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <dotm.version>1.0.0</dotm.version>
+        <spring-boot.version>4.0.7</spring-boot.version>
+        <spring-cloud.version>2025.1.2</spring-cloud.version>
+        <lombok.version>1.18.46</lombok.version>
+        <mybatisplus.version>3.5.17</mybatisplus.version>
+        <druid.version>1.2.28</druid.version>
+        <spring-cloud-alibaba.version>2025.1.0.0</spring-cloud-alibaba.version>
+        <jwt.version>0.13.0</jwt.version>
+        <fastjson.version>2.0.64</fastjson.version>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <oshi-core.version>6.4.4</oshi-core.version>
+        <commons-text.version>1.14.0</commons-text.version>
+        <spring-ai.version>2.0.1</spring-ai.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!--monitor-->
+            <dependency>
+                <groupId>com.dotm</groupId>
+                <artifactId>dotm-monitor-auth-api</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.dotm</groupId>
+                <artifactId>dotm-monitor-auth-client</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+            <!--monitor-->
+
+            <!--ai模块-->
+            <dependency>
+                <groupId>com.framework</groupId>
+                <artifactId>dotm-framework-ai</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+
+            <!--网关模块-->
+            <dependency>
+                <groupId>com.dotm</groupId>
+                <artifactId>dotm-gateway</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+
+            <!--security-->
+            <dependency>
+                <groupId>com.framework</groupId>
+                <artifactId>dotm-framework-security-starter-gateway</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.framework</groupId>
+                <artifactId>dotm-framework-security-api</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.framework</groupId>
+                <artifactId>dotm-framework-security-starter-auth</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.framework</groupId>
+                <artifactId>dotm-framework-security-starter-service</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+            <!--security-->
+
+            <!--redis-->
+            <dependency>
+                <groupId>com.framework</groupId>
+                <artifactId>dotm-framework-redis</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+
+            <!--消息队列-->
+            <dependency>
+                <groupId>com.framework</groupId>
+                <artifactId>dotm-framework-mq</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+
+            <!--datasource-->
+            <dependency>
+                <groupId>com.framework</groupId>
+                <artifactId>dotm-framework-datasource</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+
+            <!--core-->
+            <dependency>
+                <groupId>com.framework</groupId>
+                <artifactId>dotm-framework-core</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+
+            <!--common-->
+            <dependency>
+                <groupId>com.framework</groupId>
+                <artifactId>dotm-framework-common</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+
+            <!--framework ai-->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Apache Commons Text 库 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons-text.version}</version>
+            </dependency>
+
+            <!-- OSHI 核心库 -->
+            <dependency>
+                <groupId>com.github.oshi</groupId>
+                <artifactId>oshi-core</artifactId>
+                <version>${oshi-core.version}</version>
+            </dependency>
+
+            <!-- JSON 解析器和生成器 -->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+
+            <!--jwt 依赖-->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jwt.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jwt.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <!--jwt 依赖-->
+
+            <!--mp-->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot4-starter</artifactId><!--mp-->
+                <version>${mybatisplus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId><!--翻页插件-->
+                <version>${mybatisplus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-4-starter</artifactId><!--德鲁伊连接池-->
+                <version>${druid.version}</version>
+            </dependency>
+            <!--mp-->
+
+            <!--lombok-->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <!--lombok-->
+
+            <!-- 管理 Spring Boot、Spring Framework、Spring Security 等 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- 管理 Spring Cloud 组件 -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- 管理 Spring Cloud 组件 -->
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <!--参数名匹配插件 让接口的参数名直接匹配请求的参数名-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+                    <parameters>${maven.compiler.parameters}</parameters>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

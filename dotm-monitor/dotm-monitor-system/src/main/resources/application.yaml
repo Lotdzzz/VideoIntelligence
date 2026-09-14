@@ -1,0 +1,18 @@
+server:
+  port: ${SYSTEM_MONITOR_PORT:9998}
+spring:
+  profiles:
+    active: ${SYSTEM_MONITOR_PROFILE}
+  application:
+    name: system-monitor-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+      config:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+        group: ${NACOS_GROUP}
+  config:
+    import:
+      - optional:nacos:application-common.yaml?group=${NACOS_GROUP}
+      - optional:nacos:application-dev.yaml?group=${NACOS_GROUP}

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.dotm</groupId>
+        <artifactId>dotm-auth</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>dotm-auth-client</artifactId>
+
+    <dependencies>
+        <!--redis-->
+        <dependency>
+            <groupId>com.framework</groupId>
+            <artifactId>dotm-framework-redis</artifactId>
+        </dependency>
+
+        <!--核心模块-->
+        <dependency>
+            <groupId>com.framework</groupId>
+            <artifactId>dotm-framework-core</artifactId>
+        </dependency>
+
+        <!--数据库-->
+        <dependency>
+            <groupId>com.framework</groupId>
+            <artifactId>dotm-framework-datasource</artifactId>
+        </dependency>
+
+        <!-- nacos -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId><!-- nacos 服务注册发现 -->
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId><!-- nacos 服务配置中心 -->
+        </dependency>
+        <!-- nacos -->
+
+        <!--security-->
+        <dependency>
+            <groupId>com.framework</groupId>
+            <artifactId>dotm-framework-security-starter-auth</artifactId>
+        </dependency>
+
+        <!--mq-->
+        <dependency>
+            <groupId>com.framework</groupId>
+            <artifactId>dotm-framework-mq</artifactId>
+        </dependency>
+
+        <!--aspectj-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
+        </dependency>
+
+        <!--monitor auth api-->
+        <dependency>
+            <groupId>com.dotm</groupId>
+            <artifactId>dotm-monitor-auth-api</artifactId>
+        </dependency>
+
+        <!--framework ai-->
+        <dependency>
+            <groupId>com.framework</groupId>
+            <artifactId>dotm-framework-ai</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

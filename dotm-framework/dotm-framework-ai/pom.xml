@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.framework</groupId>
+        <artifactId>dotm-framework</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>dotm-framework-ai</artifactId>
+
+    <dependencies>
+        <!--OpenAI接入使用-->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
+        </dependency>
+
+        <!--数据库（MyBatis Plus、Druid 等）-->
+        <!-- 横向依赖 -->
+        <dependency>
+            <groupId>com.framework</groupId>
+            <artifactId>dotm-framework-datasource</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

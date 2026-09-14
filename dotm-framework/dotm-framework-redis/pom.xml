@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.framework</groupId>
+        <artifactId>dotm-framework</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>dotm-framework-redis</artifactId>
+
+    <dependencies>
+        <!--redis 依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jackson</artifactId><!-- Spring Boot 4 uses Jackson 3. -->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId><!-- Enables the Lettuce connection pool. -->
+        </dependency>
+        <!--redis 依赖-->
+
+        <!--common-->
+        <dependency>
+            <groupId>com.framework</groupId>
+            <artifactId>dotm-framework-common</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

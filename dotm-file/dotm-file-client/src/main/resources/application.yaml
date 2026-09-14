@@ -1,0 +1,18 @@
+server:
+  port: ${FILE_PORT:9997}
+spring:
+  profiles:
+    active: ${FILE_PROFILE}
+  application:
+    name: file-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+      config:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+        group: ${NACOS_GROUP}
+  config:
+    import:
+      - optional:nacos:application-dev.yaml?group=${NACOS_GROUP}
+      - optional:nacos:application-file.yaml?group=${NACOS_GROUP}

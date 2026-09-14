@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dotm.mapper.SysAuthLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.dotm.entity.model.SysAuthLog">
+            <id property="id" column="id" />
+            <result property="userId" column="user_id" />
+            <result property="username" column="username" />
+            <result property="loginType" column="login_type" />
+            <result property="status" column="status" />
+            <result property="failReason" column="fail_reason" />
+            <result property="ipAddress" column="ip_address" />
+            <result property="ipLocation" column="ip_location" />
+            <result property="userAgent" column="user_agent" />
+            <result property="uuidId" column="uuid_id" />
+            <result property="loginTime" column="login_time" />
+            <result property="logoutTime" column="logout_time" />
+            <result property="expireTime" column="expire_time" />
+            <result property="delFlag" column="del_flag" />
+            <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,username,login_type,status,fail_reason,
+        ip_address,ip_location,user_agent,uuid_id,login_time,
+        logout_time,expire_time,del_flag,create_time
+    </sql>
+</mapper>
