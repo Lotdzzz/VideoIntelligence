@@ -3,9 +3,10 @@ import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { ElMessage } from 'element-plus';
 import { getToken, removeToken } from './token';
 import { routesIndexConstants } from '@/constants/routesConstants';
+import { constants } from '@/constants/configuration';
 
 const service: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL as string,
+  baseURL: constants.API_BASE_URL,
   timeout: 300000,
 });
 
