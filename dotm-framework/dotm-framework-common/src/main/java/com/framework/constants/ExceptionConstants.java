@@ -59,6 +59,8 @@ public class ExceptionConstants {
 
     public static final String FILE_NAME_INVALID = "文件名不合法";
 
+    public static final String FILE_PRE_SIGN_ERROR = "文件上传预签名异常";
+
     /**
      * xss攻击异常
      */

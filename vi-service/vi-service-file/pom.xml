@@ -3,17 +3,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
-    <modules>
-        <module>vi-service-file</module>
-    </modules>
     <parent>
-        <groupId>com.dotm</groupId>
-        <artifactId>DotmCloud</artifactId>
+        <groupId>com.vi</groupId>
+        <artifactId>vi-service</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <groupId>com.vi</groupId>
-    <artifactId>vi-service</artifactId>
+    <artifactId>vi-service-file</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>vi-service-file-api</module>
+        <module>vi-service-file-client</module>
+    </modules>
 
 </project>

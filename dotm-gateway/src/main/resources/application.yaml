@@ -28,6 +28,7 @@ spring:
       server:
         webflux:
           routes:
+            # 框架配置的路由规则
             - id: auth
               uri: lb://auth-service
               predicates:
@@ -50,6 +51,13 @@ spring:
               uri: lb://file-service
               predicates:
                 - Path=/upload/**
+              filters:
+                - StripPrefix=0
+            # 业务模块的路由规则
+            - id: service-file
+              uri: lb://service-file
+              predicates:
+                - Path=/file/**
               filters:
                 - StripPrefix=0
           default-filters:

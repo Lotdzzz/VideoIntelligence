@@ -1,0 +1,18 @@
+server:
+  port: ${SERVICE_FILE:1001}
+spring:
+  profiles:
+    active: ${SERVICE_FILE_PROFILE}
+  application:
+    name: service-file
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+      config:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+  config:
+    import:
+      - optional:nacos:application-dev.yaml?refreshEnabled=true&group=${NACOS_GROUP}
+      - optional:nacos:application-file.yaml?refreshEnabled=true&group=${VI_GROUP}
+      - optional:nacos:application-common.yaml?refreshEnabled=true&group=${NACOS_GROUP}

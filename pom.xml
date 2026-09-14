@@ -36,10 +36,18 @@
         <oshi-core.version>6.4.4</oshi-core.version>
         <commons-text.version>1.14.0</commons-text.version>
         <spring-ai.version>2.0.1</spring-ai.version>
+        <minio.version>8.6.0</minio.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!--MinIO-->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
+            </dependency>
+
             <!--monitor-->
             <dependency>
                 <groupId>com.dotm</groupId>
