@@ -171,3 +171,62 @@ create index idx_user_id
 create index idx_username
     on sys_auth_log (username);
 
+-- 未执行的sql
+CREATE TABLE sys_file
+(
+    id            BIGINT       NOT NULL AUTO_INCREMENT COMMENT '文件ID',
+    user_id       BIGINT       NOT NULL COMMENT '所属用户ID',
+
+    original_name VARCHAR(255) NOT NULL COMMENT '原始文件名',
+    object_name   VARCHAR(500) NOT NULL COMMENT 'MinIO对象名称',
+    bucket_name   VARCHAR(100) NOT NULL COMMENT 'MinIO Bucket',
+
+    file_type     VARCHAR(50)           DEFAULT NULL COMMENT '文件类型，如 video/audio/image/document',
+    file_ext      VARCHAR(20)           DEFAULT NULL COMMENT '文件扩展名，如 mp4/pdf/jpg',
+    content_type  VARCHAR(100)          DEFAULT NULL COMMENT 'MIME类型，如 video/mp4',
+
+    file_size     BIGINT       NOT NULL DEFAULT 0 COMMENT '文件大小，单位：字节',
+
+    category_id   BIGINT                DEFAULT NULL COMMENT '文件分类ID',
+
+    status        TINYINT      NOT NULL DEFAULT 0 COMMENT '文件状态：0上传中 1已上传 2处理中 3处理完成 4上传失败 5已删除',
+
+    md5           VARCHAR(64)           DEFAULT NULL COMMENT '文件MD5，用于后续秒传/去重',
+
+    upload_time   DATETIME              DEFAULT NULL COMMENT '上传完成时间',
+    create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+
+    is_deleted    TINYINT      NOT NULL DEFAULT 0 COMMENT '逻辑删除：0否 1是',
+
+    PRIMARY KEY (id),
+    KEY idx_user_id (user_id),
+    KEY idx_category_id (category_id),
+    KEY idx_status (status),
+    KEY idx_create_time (create_time),
+    KEY idx_user_category (user_id, category_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+    COMMENT ='用户文件表';
+
+CREATE TABLE sys_file_category
+(
+    id            BIGINT       NOT NULL AUTO_INCREMENT COMMENT '分类ID',
+    user_id       BIGINT       NOT NULL COMMENT '所属用户ID',
+
+    category_name VARCHAR(100) NOT NULL COMMENT '分类名称',
+    sort          INT          NOT NULL DEFAULT 0 COMMENT '排序',
+
+    create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+
+    is_deleted    TINYINT      NOT NULL DEFAULT 0 COMMENT '逻辑删除：0否 1是',
+
+    PRIMARY KEY (id),
+    KEY idx_user_id (user_id),
+    UNIQUE KEY uk_user_category (user_id, category_name)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+    COMMENT ='用户文件分类表';

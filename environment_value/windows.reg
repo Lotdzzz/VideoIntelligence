@@ -4,6 +4,7 @@ Windows Registry Editor Version 5.00
 ; nacos配置
 "NACOS_SERVER_HOST_PORT"="192.168.99.128:8848"
 "NACOS_GROUP"="DOTM_GROUP"
+"VI_GROUP"="VI_GROUP"
 
 ; 消息队列配置
 "RABBITMQ_SERVER_HOST"="192.168.99.128"
@@ -24,18 +25,17 @@ Windows Registry Editor Version 5.00
 
 ; 网关配置
 "GATEWAY_PROFILES"="gateway,common,auth"
-
 ; 认证中心配置
 "AUTH_PROFILES"="auth,dev,common,ai"
-
 ; 认证监控配置
 "AUTH_MONITOR_PROFILE"="common,dev"
-
 ; 系统监控配置
 "SYSTEM_MONITOR_PROFILE"="common,dev"
-
 ; 文件上传模块配置
 "FILE_PROFILE"="dev,file"
+
+; VI文件模块
+"SERVICE_FILE_PROFILE"="dev,file,common"
 
 ; 微服务端口配置
 "GATEWAY_PORT"="8080" ; 网关
@@ -43,3 +43,5 @@ Windows Registry Editor Version 5.00
 "AUTH_MONITOR_PORT"="9999" ;认证中心监控
 "SYSTEM_MONITOR_PORT"="9998" ;系统监控
 "FILE_PORT"="9997" ;文件
+; 业务服务端口配置
+"SERVICE_FILE"="1001" ;VI文件服务
