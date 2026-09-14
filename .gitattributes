@@ -1,0 +1,15 @@
+# 默认：所有文本文件在仓库里统一用 LF
+* text=auto eol=lf
+
+# Windows 专属脚本保持 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制文件不要动
+*.png binary
+*.jpg binary
+*.jar binary
+*.pdf binary
+
+# shell 脚本必须 LF
+*.sh text eol=lf
