@@ -92,11 +92,6 @@ public class AuthGlobalFilter implements GlobalFilter {
             return ServletUtils.webFluxResponseWriter(exchange.getResponse(), ExceptionConstants.LOGIN_ADDR_ERROR);
         }
 
-        //判断ip
-        if (!Objects.equals(ip, userDetails.getIp())) {
-            return ServletUtils.webFluxResponseWriter(exchange.getResponse(), ExceptionConstants.LOGIN_IP_ERROR);
-        }
-
         //重新构建请求 只传uuid 用户信息获取交给下游服务
         ServerHttpRequest newRequest = request.mutate()
                 //删除客户端伪造数据
