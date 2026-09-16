@@ -1,6 +1,6 @@
 package com.dotm.service;
 
-import com.dotm.entity.dto.LoginRequestDTO;
+import com.dotm.entity.dto.login.LoginRequestDTO;
 import com.dotm.entity.vo.UserInfoVO;
 import com.dotm.entity.vo.ValidVO;
 

@@ -9,6 +9,13 @@ public class SecurityURLPathConstants {
     public static final String ALL = "/**";
     public static final String AI = "/auth/mcp/**";
 
+    public static final String[] DYNAMIC_RESOURCE = {
+            "/auth/login",
+            "/auth/register",
+            "/auth/mcp/**",
+            "/auth/oauth/**",
+    };
+
     public static final String[] STATIC_RESOURCES = {
             "/static/**",
             "/css/**",
@@ -16,5 +23,5 @@ public class SecurityURLPathConstants {
             "/images/**",
             "/webjars/**",
             "/favicon.ico"
-        };
+    };
 }

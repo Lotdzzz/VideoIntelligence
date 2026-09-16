@@ -1,6 +1,7 @@
 package com.framework.exception;
 
 import com.framework.constants.FilterOrderConstants;
+import com.framework.exception.login.LoginException;
 import com.framework.exception.user.UserException;
 import com.framework.model.Result;
 import com.framework.utils.StringUtils;
@@ -35,6 +36,16 @@ public class GlobalExceptionHandler {
     public Result<Object> userException(UserException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生用户异常.", requestURI, e);
+        return Result.error(e.getMessage());
+    }
+
+    /**
+     * 登录异常
+     */
+    @ExceptionHandler(LoginException.class)
+    public Result<Object> loginException(LoginException e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',发生登录异常.", requestURI, e);
         return Result.error(e.getMessage());
     }
 

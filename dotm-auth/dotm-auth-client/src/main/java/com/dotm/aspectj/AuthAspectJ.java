@@ -5,7 +5,7 @@ import com.framework.constants.AuthLoginLogConstants;
 import com.framework.constants.ExceptionConstants;
 import com.framework.constants.TokenConstants;
 import com.dotm.entity.dto.AuthLogDTO;
-import com.dotm.entity.dto.LoginBodyDTO;
+import com.dotm.entity.dto.login.LoginBodyDTO;
 import com.framework.exception.user.UserLockedException;
 import com.framework.exception.user.UserPasswordNotMatchException;
 import com.framework.model.LoginBodyAuthentication;

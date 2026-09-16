@@ -115,18 +115,18 @@ drop table if exists ai_prompt;
 CREATE TABLE `ai_prompt`
 (
     `id`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `name`         VARCHAR(255)          DEFAULT NULL COMMENT '提示词名称',
+    `name`         VARCHAR(255) DEFAULT NULL COMMENT '提示词名称',
     `content`      MEDIUMTEXT   NOT NULL COMMENT '提示词内容',
-    `model`        VARCHAR(128)          DEFAULT NULL COMMENT '模型，如 gpt-4o',
-    `model_params` JSON                  DEFAULT NULL COMMENT '模型参数，如 {"temperature":0.7}',
+    `model`        VARCHAR(128) DEFAULT NULL COMMENT '模型，如 gpt-4o',
+    `model_params` JSON         DEFAULT NULL COMMENT '模型参数，如 {"temperature":0.7}',
     `version`      INT UNSIGNED NOT NULL DEFAULT 1 COMMENT '版本号',
     `status`       TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态：0-禁用，1-启用',
     `deleted`      TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '软删除：0-未删除，1-已删除',
-    `create_time`   DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
-    `update_time`   DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
-    `key`           VARCHAR(100) NOT NULL COMMENT '唯一标识key',
+    `create_time`  DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+    `update_time`  DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+    `key`          VARCHAR(100) NOT NULL COMMENT '唯一标识key',
     PRIMARY KEY (`id`),
-    UNIQUE KEY      `ai_prompt_unique` (`key`),
+    UNIQUE KEY `ai_prompt_unique` (`key`),
     KEY            `idx_scene_status_deleted` (`status`, `deleted`),
     KEY            `idx_updated_at` (`update_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AI提示词表';
@@ -139,22 +139,21 @@ create table sys_auth_log
 (
     id          bigint auto_increment comment '主键ID'
         primary key,
-    user_id     bigint                             null comment '用户ID',
+    user_id     bigint null comment '用户ID',
     username    varchar(50)                        not null comment '登录账号',
     login_type  varchar(20)                        not null comment '登录类型 LOGIN登录 LOGOUT退出',
     status      tinyint  default 0                 not null comment '状态 1成功 0失败',
-    fail_reason varchar(255)                       null comment '失败原因',
-    ip_address  varchar(64)                        null comment '登录IP',
-    ip_location varchar(255)                       null comment 'IP归属地',
-    user_agent  varchar(512)                       null comment '浏览器UA',
-    uuid_id     varchar(128)                       null comment 'JWT Token唯一标识',
+    fail_reason varchar(255) null comment '失败原因',
+    ip_address  varchar(64) null comment '登录IP',
+    ip_location varchar(255) null comment 'IP归属地',
+    user_agent  varchar(512) null comment '浏览器UA',
+    uuid_id     varchar(128) null comment 'JWT Token唯一标识',
     login_time  datetime                           not null comment '登录时间',
-    logout_time datetime                           null comment '退出时间',
-    expire_time datetime                           null comment 'token过期时间',
-    del_flag    char     default '0'               null comment '删除标志（0代表存在 1代表删除）',
+    logout_time datetime null comment '退出时间',
+    expire_time datetime null comment 'token过期时间',
+    del_flag    char     default '0' null comment '删除标志（0代表存在 1代表删除）',
     create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间'
-)
-    comment '用户认证登录日志';
+) comment '用户认证登录日志';
 
 create index idx_ip_address
     on sys_auth_log (ip_address);
@@ -170,6 +169,30 @@ create index idx_user_id
 
 create index idx_username
     on sys_auth_log (username);
+
+-- ----------------------------
+-- 第三方用户表
+-- ----------------------------
+DROP TABLE IF EXISTS sys_auth_oauth;
+CREATE TABLE sys_auth_oauth
+(
+    oauth_id     BIGINT(20)      NOT NULL AUTO_INCREMENT COMMENT '第三方账号绑定ID',
+    user_id      BIGINT(20)      NOT NULL COMMENT '系统用户ID',
+    provider     VARCHAR(20)  NOT NULL COMMENT '第三方平台（github、wechat、qq）',
+    open_id      VARCHAR(128) NOT NULL COMMENT '第三方平台用户唯一ID',
+    union_id     VARCHAR(128) DEFAULT NULL COMMENT '第三方平台统一ID',
+    oauth_name   VARCHAR(50)  DEFAULT '' COMMENT '第三方账号昵称',
+    oauth_avatar VARCHAR(255) DEFAULT '' COMMENT '第三方账号头像',
+    oauth_email  VARCHAR(100) DEFAULT '' COMMENT '第三方账号邮箱',
+    create_time  DATETIME     DEFAULT NULL COMMENT '绑定时间',
+    update_time  DATETIME     DEFAULT NULL COMMENT '更新时间',
+    remark       VARCHAR(500) DEFAULT NULL COMMENT '备注',
+
+    PRIMARY KEY (oauth_id),
+    UNIQUE KEY uk_provider_open_id (provider, open_id),
+    KEY          idx_user_id (user_id)
+
+) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT='第三方账号绑定表';
 
 -- 未执行的sql
 CREATE TABLE sys_file
@@ -200,11 +223,11 @@ CREATE TABLE sys_file
     is_deleted    TINYINT      NOT NULL DEFAULT 0 COMMENT '逻辑删除：0否 1是',
 
     PRIMARY KEY (id),
-    KEY idx_user_id (user_id),
-    KEY idx_category_id (category_id),
-    KEY idx_status (status),
-    KEY idx_create_time (create_time),
-    KEY idx_user_category (user_id, category_id)
+    KEY           idx_user_id (user_id),
+    KEY           idx_category_id (category_id),
+    KEY           idx_status (status),
+    KEY           idx_create_time (create_time),
+    KEY           idx_user_category (user_id, category_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -224,7 +247,7 @@ CREATE TABLE sys_file_category
     is_deleted    TINYINT      NOT NULL DEFAULT 0 COMMENT '逻辑删除：0否 1是',
 
     PRIMARY KEY (id),
-    KEY idx_user_id (user_id),
+    KEY           idx_user_id (user_id),
     UNIQUE KEY uk_user_category (user_id, category_name)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

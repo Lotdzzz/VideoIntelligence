@@ -1,4 +1,4 @@
-package com.dotm.entity.dto;
+package com.dotm.entity.dto.login;
 
 import lombok.Data;
 

@@ -20,6 +20,28 @@ public class ExceptionConstants {
     public static final String USER_LOCKED = "用户已锁定";
 
     /**
+     * 登录异常
+     */
+    public static final String LOGIN_ERROR = "登录异常";
+
+    public static final String LOGIN_CSRF_ERROR = "伪造请求异常";
+
+    public static final String LOGIN_EXPIRE_OUT = "用户认证过期，请重新登录";
+
+    public static final String LOGIN_AUTH_ERROR = "用户认证异常，请重新登录";
+
+    public static final String LOGIN_TIME_OUT = "登录超时，请重新登录";
+
+    public static final String LOGIN_NET_ERROR = "网络异常，无法访问认证服务";
+
+    public static final String LOGIN_AUTH_FAIL = "登录认证失败";
+
+    public static final String LOGIN_AUTH_SERVICE_UNAVAILABLE = "登录认证服务暂不可用";
+
+    public static final String LOGIN_AUTH_REQUEST_ERROR = "认证请求失败";
+
+
+    /**
      * 角色异常信息
      */
     public static final String ROLE_NOT_EXISTS = "角色列表为空";

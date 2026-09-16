@@ -70,11 +70,7 @@ public class SecurityConfig {
                     //因为在网关层面以做到白名单所以此处全部放行
                     auth.requestMatchers(HttpMethod.OPTIONS, SecurityURLPathConstants.ALL).permitAll()
                             .requestMatchers(SecurityURLPathConstants.STATIC_RESOURCES).permitAll()
-                            .requestMatchers(
-                                    SecurityURLPathConstants.LOGIN_URL,
-                                    SecurityURLPathConstants.REGISTER_URL,
-                                    SecurityURLPathConstants.AI)
-                            .permitAll()
+                            .requestMatchers(SecurityURLPathConstants.DYNAMIC_RESOURCE).permitAll()
                             .anyRequest().authenticated();
                 })
                 // 【插入过滤器】

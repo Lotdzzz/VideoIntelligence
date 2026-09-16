@@ -6,10 +6,6 @@ target/
 
 ### IntelliJ IDEA ###
 .idea/
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
 *.iws
 *.iml
 *.ipr
@@ -26,7 +22,6 @@ target/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
 /nbdist/
 /.nb-gradle/
 build/
@@ -34,13 +29,14 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 
 ### Mac OS ###
 .DS_Store
 
-# Logs
-logs
+# 日志
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -48,16 +44,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-coverage
 *.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# 编辑器目录与文件（其余见上方各 IDE 段）
 *.suo
 *.ntvs*
 *.njsproj
@@ -86,6 +75,7 @@ node_modules/
 
 # 构建产物
 dist/
+dist-ssr/
 out/
 .next/
 .nuxt/
@@ -106,3 +96,58 @@ Thumbs.db
 # 测试覆盖率
 coverage/
 .nyc_output/
+
+# Python 字节码与解释器产物
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.python-version
+
+# Python 虚拟环境
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Python 打包/分发
+*.egg
+*.egg-info/
+.eggs/
+.installed.cfg
+MANIFEST
+pip-wheel-metadata/
+
+# Python 测试与覆盖率
+.pytest_cache/
+.tox/
+.nox/
+.hypothesis/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+htmlcov/
+
+# Python 类型检查与 Lint 缓存
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+.pylint.d/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Python 工具临时文件
+celerybeat-schedule
+celerybeat.pid
+*.sage.py
+.spyderproject
+.spyproject
+.ropeproject

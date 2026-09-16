@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.dotm.constants.UserConstants;
-import com.dotm.entity.dto.SysMenuDTO;
+import com.dotm.entity.dto.system.SysMenuDTO;
 import com.dotm.entity.model.SysMenu;
 import com.dotm.entity.model.SysRoleMenu;
 import com.dotm.entity.vo.SysMenuVO;

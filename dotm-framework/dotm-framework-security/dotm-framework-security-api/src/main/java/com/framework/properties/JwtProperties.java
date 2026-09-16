@@ -38,4 +38,9 @@ public class JwtProperties {
      */
     private String prefix;
 
+    /**
+     * 用来做Oauth的github的state过期时间
+     */
+    private String stateTtl;
+
 }

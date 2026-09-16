@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dotm.mapper.SysAuthOauthMapper">
+
+    <resultMap id="BaseResultMap" type="com.dotm.entity.model.SysAuthOauth">
+            <id property="oauthId" column="oauth_id" />
+            <result property="userId" column="user_id" />
+            <result property="provider" column="provider" />
+            <result property="openId" column="open_id" />
+            <result property="unionId" column="union_id" />
+            <result property="oauthName" column="oauth_name" />
+            <result property="oauthAvatar" column="oauth_avatar" />
+            <result property="oauthEmail" column="oauth_email" />
+            <result property="createTime" column="create_time" />
+            <result property="updateTime" column="update_time" />
+            <result property="remark" column="remark" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        oauth_id,user_id,provider,open_id,union_id,
+        oauth_name,oauth_avatar,oauth_email,create_time,update_time,remark
+    </sql>
+
+    <select id="selectByProviderAndOpenId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from sys_auth_oauth
+        where provider = #{provider}
+        and open_id = #{openId}
+        limit 1
+    </select>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from sys_auth_oauth
+        where user_id = #{userId}
+        order by create_time desc
+    </select>
+</mapper>

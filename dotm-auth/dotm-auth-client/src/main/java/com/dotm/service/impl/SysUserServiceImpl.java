@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.dotm.constants.UserConstants;
-import com.dotm.entity.dto.SysUserDTO;
+import com.dotm.entity.dto.system.SysUserDTO;
 import com.dotm.entity.model.SysMenu;
 import com.dotm.entity.model.SysRole;
 import com.dotm.entity.model.SysUser;
@@ -135,7 +135,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         //保存角色
         boolean isSave = save(sysUser);
 
+        dto.setUserId(sysUser.getUserId());
+
         //添加角色列表
+        if (dto.getRoleIds() == null || dto.getRoleIds().isEmpty()) {
+            return isSave;
+        }
         boolean isBind = sysUserRoleService.bindRolesByUserId(sysUser.getUserId(), dto.getRoleIds());
 
         //保存用户
@@ -160,6 +165,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         }
 
         //添加角色列表 先删除角色列表
+        if (dto.getRoleIds() == null || dto.getRoleIds().isEmpty()) {
+            return updateById(sysUser);
+        }
         boolean isUnBind = sysUserRoleService.unBindRolesByUserId(sysUser.getUserId());
         boolean isBind = sysUserRoleService.bindRolesByUserId(sysUser.getUserId(), dto.getRoleIds());
 

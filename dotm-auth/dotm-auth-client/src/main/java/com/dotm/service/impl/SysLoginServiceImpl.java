@@ -1,7 +1,7 @@
 package com.dotm.service.impl;
 
 import com.dotm.constants.UserConstants;
-import com.dotm.entity.dto.LoginRequestDTO;
+import com.dotm.entity.dto.login.LoginRequestDTO;
 import com.dotm.entity.model.SysMenu;
 import com.dotm.entity.model.SysUser;
 import com.dotm.entity.vo.MetaVO;

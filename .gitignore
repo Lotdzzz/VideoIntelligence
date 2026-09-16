@@ -106,3 +106,59 @@ Thumbs.db
 # 测试覆盖率
 coverage/
 .nyc_output/
+
+
+# Python 字节码与解释器产物
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.python-version
+
+# Python 虚拟环境
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Python 打包/分发
+*.egg
+*.egg-info/
+.eggs/
+.installed.cfg
+MANIFEST
+pip-wheel-metadata/
+
+# Python 测试与覆盖率
+.pytest_cache/
+.tox/
+.nox/
+.hypothesis/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+htmlcov/
+
+# Python 类型检查与 Lint 缓存
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+.pylint.d/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Python 工具临时文件
+celerybeat-schedule
+celerybeat.pid
+*.sage.py
+.spyderproject
+.spyproject
+.ropeproject

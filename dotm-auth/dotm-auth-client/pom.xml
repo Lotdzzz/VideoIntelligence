@@ -12,6 +12,17 @@
     <artifactId>dotm-auth-client</artifactId>
 
     <dependencies>
+        <!--OAuth2.0-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId> <!--连接池-->
+        </dependency>
+        <!--OAuth2.0-->
+
         <!--redis-->
         <dependency>
             <groupId>com.framework</groupId>

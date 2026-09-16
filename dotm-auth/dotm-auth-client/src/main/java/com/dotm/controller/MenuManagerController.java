@@ -2,7 +2,7 @@ package com.dotm.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.dotm.constants.UserConstants;
-import com.dotm.entity.dto.SysMenuDTO;
+import com.dotm.entity.dto.system.SysMenuDTO;
 import com.dotm.entity.vo.SysMenuVO;
 import com.framework.model.Result;
 import com.dotm.service.SysMenuService;

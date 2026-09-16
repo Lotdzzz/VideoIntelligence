@@ -2,7 +2,7 @@ package com.dotm.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.spring.service.IService;
-import com.dotm.entity.dto.SysRoleDTO;
+import com.dotm.entity.dto.system.SysRoleDTO;
 import com.dotm.entity.model.SysRole;
 import com.dotm.entity.vo.SysRoleVO;
 

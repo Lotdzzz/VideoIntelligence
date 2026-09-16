@@ -19,6 +19,8 @@ export default defineConfig({
     server: {
         //前端端口
         port: constants.FRONTEND_PORT,
+        // 固定为 127.0.0.1：GitHub 回调地址使用 127.0.0.1，避免与 localhost 形成不同源导致本地存储不互通
+        host: '127.0.0.1',
         open: true,
         //跨域问题配置
         proxy: {
