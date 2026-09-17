@@ -1,10 +1,13 @@
 package com.dotm.service.impl;
 
+import com.dotm.config.security.github.properties.GithubProviderProperties;
+import com.dotm.config.security.SafeComponent;
 import com.dotm.constants.OAuthConstants;
 import com.dotm.entity.dto.oauth.GithubOAuthCodeDTO;
 import com.dotm.entity.dto.oauth.GithubOAuthDTO;
-import com.dotm.entity.dto.oauth.SysAuthOauthDTO;
-import com.dotm.entity.model.SysAuthOauth;
+import com.framework.model.GithubAuthenticationToken;
+import com.dotm.entity.model.oauth.SysAuthOauth;
+import com.dotm.entity.vo.GithubCallBackVO;
 import com.dotm.entity.vo.GithubTokenVO;
 import com.dotm.entity.vo.GithubUserVO;
 import com.dotm.entity.vo.SysAuthOauthVO;
@@ -13,15 +16,16 @@ import com.dotm.service.SysAuthOauthService;
 import com.dotm.utils.BuildRequestUtil;
 import com.dotm.utils.RequestResponseUtil;
 import com.framework.exception.login.LoginAuthError;
-import com.framework.exception.login.LoginExpireOut;
+import com.framework.model.LoginBodyAuthentication;
 import com.framework.model.LoginBodyModel;
 import com.framework.properties.JwtProperties;
 import com.framework.service.AuthTokenService;
 import com.framework.service.RedisCacheService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
@@ -36,7 +40,10 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GithubOAuthServiceImpl implements GithubOAuthService {
+
+    private final SafeComponent safeComponent;
 
     private final AuthTokenService authTokenService;
 
@@ -46,11 +53,13 @@ public class GithubOAuthServiceImpl implements GithubOAuthService {
 
     private final JwtProperties jwtProperties;
 
-    private final OAuth2ClientProperties oAuth2ClientProperties;
-
     private final RequestResponseUtil requestResponseUtil;
 
     private final SysAuthOauthService sysAuthOauthService;
+
+    private final GithubProviderProperties provider;
+
+    private final AuthenticationManager authenticationManager;
 
     /**
      * 获取github授权登录url
@@ -84,28 +93,12 @@ public class GithubOAuthServiceImpl implements GithubOAuthService {
      * @return github用户信息
      */
     @Override
-    public String githubCallBackHandler(GithubOAuthCodeDTO githubOAuthCodeDTO) {
-        // 获取要发送到目标github的地址
-        OAuth2ClientProperties.Provider pov = oAuth2ClientProperties.getProvider().get(OAuthConstants.GITHUB);
-        OAuth2ClientProperties.Registration reg = oAuth2ClientProperties.getRegistration().get(OAuthConstants.GITHUB);
+    public GithubCallBackVO githubCallBackHandler(GithubOAuthCodeDTO githubOAuthCodeDTO) {
+        // 校验state值 防止CSRF攻击
+        safeComponent.checkCRSF(githubOAuthCodeDTO.getState());
 
-        // 验证state值是否存在
-        String state = githubOAuthCodeDTO.getState();
-        String redisState = redisCacheService.getCacheObject(OAuthConstants.STATE_PREFIX + state);
-        if (redisState == null || redisState.isEmpty()) {
-            throw new LoginExpireOut(null);
-        }
-
-        // 删除redis中的state值
-        redisCacheService.deleteObject(OAuthConstants.STATE_PREFIX + state);
-
-        // 构造请求体
-        HttpEntity<MultiValueMap<String, String>> request = buildRequestUtil
-                .buildRequestForGithubFetchAccessToken(githubOAuthCodeDTO.getCode());
-
-        // 发请求获取响应体
-        GithubTokenVO githubTokenVO = requestResponseUtil.post(request,
-                Objects.requireNonNull(pov.getTokenUri()), GithubTokenVO.class);
+        // 通过code获取access_token
+        GithubTokenVO githubTokenVO = getAccessToken(githubOAuthCodeDTO.getCode());
 
         // 校验结果
         if (githubTokenVO == null || !githubTokenVO.isSuccess()) {
@@ -113,39 +106,97 @@ public class GithubOAuthServiceImpl implements GithubOAuthService {
             throw new LoginAuthError(msg);
         }
 
-        // 构造请求体
-        HttpEntity<MultiValueMap<String, String>> requestUserInfo =
-                buildRequestUtil.buildRequestForGithubFetchUserInfo(githubTokenVO.accessToken());
-
         // 发请求获取用户信息
-        GithubUserVO githubUserVO = requestResponseUtil.get(requestUserInfo, Objects.requireNonNull(pov.getUserInfoUri()), GithubUserVO.class);
+        GithubUserVO githubUserVO = getUserInfo(githubTokenVO.accessToken());
 
         // 获取第三方账号绑定信息
         SysAuthOauthVO oauthUser = sysAuthOauthService.getByProviderAndOpenId(OAuthConstants.GITHUB, githubUserVO.id().toString());
 
-        // 判断用户是否绑定
-        boolean isSave = false;
-        boolean isUpdate = false;
-        SysAuthOauth sysAuthOauth = null;
-        if (oauthUser == null) {
-            // 未绑定 进行绑定
-            sysAuthOauth = sysAuthOauthService.toSysAuthOauth(githubUserVO, null);
-            SysAuthOauthDTO sysAuthOauthDTO = new SysAuthOauthDTO();
-            BeanUtils.copyProperties(sysAuthOauth, sysAuthOauthDTO);
-            isSave = sysAuthOauthService.bindAuthOauth(sysAuthOauthDTO);
-        } else {
-            // 已绑定 更新为最新信息
-            sysAuthOauth = sysAuthOauthService.toSysAuthOauth(githubUserVO, Objects.requireNonNull(oauthUser).getUserId());
-            isUpdate = sysAuthOauthService.update(sysAuthOauth, null);
+        // 将第三方用户信息转换为系统第三方对象
+        SysAuthOauth sysAuthOauth = sysAuthOauthService.toSysAuthOauth(
+                githubUserVO,
+                oauthUser == null || oauthUser.getUserId() == null ? null : oauthUser.getUserId());
+
+        // 进行系统第三方账户与系统用户的绑定处理 这里必定有userId
+        SysAuthOauth bindHandlerObject = bindThirdPartyAccount(sysAuthOauth);
+        if (bindHandlerObject == null) {
+            throw new LoginAuthError("Failed to bind third-party account");
         }
 
-        //生成jwt返回前端 之所以在这里不返回前端是因为重定向适合发小数据
-        String token = authTokenService.createJwtToken(
-                LoginBodyModel.builder()
-                        .username(sysAuthOauth.getOauthName())
-                        .userAgent(githubOAuthCodeDTO.getUserAgent())
-                        .build());
+        // 进行Authentication认证 检测用户状态
+        Authentication authenticate = null;
+        try {
+            authenticate = authenticationManager.authenticate(new GithubAuthenticationToken(bindHandlerObject.getUserId()));
+        } catch (Exception ex) {
+            log.error("authenticate 失败, 类型={}", ex.getClass().getName(), ex);
+            log.error("cause 类型={}", ex.getCause() == null ? "null" : ex.getCause().getClass().getName());
+            throw ex;
+        }
 
-        return (isSave || isUpdate) ? token : null;
+        // 拿到认证用户信息
+        LoginBodyAuthentication user = (LoginBodyAuthentication) authenticate.getPrincipal();
+
+        // 设置基本信息
+        Objects.requireNonNull(user).setUserAgent(githubOAuthCodeDTO.getUserAgent());
+        user.setIp(githubOAuthCodeDTO.getIp());
+
+        // 获取token
+        String token = createToken(Objects.requireNonNull(user), githubOAuthCodeDTO.getUserAgent(), githubOAuthCodeDTO.getIp());
+
+        // 返回结果
+        return GithubCallBackVO.builder()
+                .token(token)
+                .githubUserVO(githubUserVO)
+                .build();
+    }
+
+    /**
+     * 拿到access_token的专属方法
+     */
+    @Override
+    public GithubTokenVO getAccessToken(String code) {
+        // 构造请求体
+        HttpEntity<MultiValueMap<String, String>> request = buildRequestUtil
+                .buildRequestForGithubFetchAccessToken(code);
+
+        // 发请求获取响应体
+        return requestResponseUtil.post(request,
+                Objects.requireNonNull(provider.getTokenUri()), GithubTokenVO.class);
+    }
+
+    /**
+     * 获取github用户信息
+     */
+    @Override
+    public GithubUserVO getUserInfo(String accessToken) {
+        // 构造请求体
+        HttpEntity<MultiValueMap<String, String>> requestUserInfo =
+                buildRequestUtil.buildRequestForGithubFetchUserInfo(accessToken);
+
+        // 发请求获取响应体
+        return requestResponseUtil.get(requestUserInfo, Objects.requireNonNull(provider.getUserInfoUri()), GithubUserVO.class);
+    }
+
+    /**
+     * 生成jwt token的抽离方法
+     *
+     * @param user      认证用户信息
+     * @param userAgent 用户设备指纹
+     * @param ip        用户ip
+     * @return jwt
+     */
+    private String createToken(LoginBodyAuthentication user, String userAgent, String ip) {
+        //生成jwt返回前端 这里会存入redis用户数据
+        return authTokenService.createJwtToken(user);
+    }
+
+    /**
+     * 绑定第三方账号 已存在同平台同openId的记录时更新为最新信息
+     */
+    @Override
+    public SysAuthOauth bindThirdPartyAccount(SysAuthOauth sysAuthOauth) {
+        return sysAuthOauth.getUserId() != null ?
+                (sysAuthOauthService.update(sysAuthOauth, null) ? sysAuthOauth : null) :
+                (sysAuthOauthService.bindAuthOauth(sysAuthOauth) ? sysAuthOauth : null);
     }
 }

@@ -1,7 +1,7 @@
 package com.dotm.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dotm.entity.model.SysAuthOauth;
+import com.dotm.entity.model.oauth.SysAuthOauth;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
 * @author dotm
 * @description 针对表【sys_auth_oauth(第三方账号绑定表)】的数据库操作Mapper
 * @createDate 2026-09-15 10:00:00
-* @Entity com.dotm.entity.model.SysAuthOauth
+* @Entity com.dotm.entity.model.oauth.SysAuthOauth
 */
 public interface SysAuthOauthMapper extends BaseMapper<SysAuthOauth> {
 

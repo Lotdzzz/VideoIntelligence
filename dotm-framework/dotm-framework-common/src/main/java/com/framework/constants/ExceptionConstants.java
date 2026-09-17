@@ -19,6 +19,8 @@ public class ExceptionConstants {
 
     public static final String USER_LOCKED = "用户已锁定";
 
+    public static final String USER_ACCOUNT_EXPIRED = "用户账号已过期";
+
     /**
      * 登录异常
      */

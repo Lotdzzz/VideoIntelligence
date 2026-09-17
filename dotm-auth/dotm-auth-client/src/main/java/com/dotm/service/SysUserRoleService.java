@@ -1,7 +1,7 @@
 package com.dotm.service;
 
 import com.baomidou.mybatisplus.spring.service.IService;
-import com.dotm.entity.model.SysUserRole;
+import com.dotm.entity.model.system.SysUserRole;
 
 import java.util.List;
 

@@ -2,7 +2,7 @@ package com.dotm.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
-import com.dotm.entity.model.SysRoleMenu;
+import com.dotm.entity.model.system.SysRoleMenu;
 import com.dotm.mapper.SysRoleMenuMapper;
 import com.dotm.service.SysRoleMenuService;
 import lombok.RequiredArgsConstructor;

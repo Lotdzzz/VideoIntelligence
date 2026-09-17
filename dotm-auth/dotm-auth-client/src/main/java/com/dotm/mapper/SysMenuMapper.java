@@ -1,7 +1,7 @@
 package com.dotm.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dotm.entity.model.SysMenu;
+import com.dotm.entity.model.system.SysMenu;
 
 /**
 * @author dotm

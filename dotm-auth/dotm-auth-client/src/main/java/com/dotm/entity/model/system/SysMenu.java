@@ -1,4 +1,4 @@
-package com.dotm.entity.model;
+package com.dotm.entity.model.system;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;

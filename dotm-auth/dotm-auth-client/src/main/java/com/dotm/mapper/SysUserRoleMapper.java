@@ -1,7 +1,7 @@
 package com.dotm.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dotm.entity.model.SysUserRole;
+import com.dotm.entity.model.system.SysUserRole;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

@@ -1,9 +1,9 @@
 package com.dotm.utils;
 
-import com.dotm.constants.OAuthConstants;
+import com.dotm.config.security.github.properties.GithubProviderProperties;
+import com.dotm.config.security.github.properties.GithubRegistrationProperties;
 import com.dotm.entity.dto.oauth.GithubOAuthDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,7 +24,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class BuildRequestUtil {
 
-    private final OAuth2ClientProperties oAuth2ClientProperties;
+    private final GithubProviderProperties provider;
+
+    private final GithubRegistrationProperties registration;
 
     /**
      * 此处构建请求体用于github获取access_token
@@ -33,9 +35,6 @@ public class BuildRequestUtil {
      * @return 构造好的请求体
      */
     public HttpEntity<MultiValueMap<String, String>> buildRequestForGithubFetchAccessToken(String code) {
-        OAuth2ClientProperties.Registration registration =
-                oAuth2ClientProperties.getRegistration().get(OAuthConstants.GITHUB);
-
         // form-urlencoded 必须用 MultiValueMap
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("client_id", registration.getClientId());
@@ -58,18 +57,12 @@ public class BuildRequestUtil {
      * @return 构造后的url
      */
     public String buildUrlAuthForGithub(GithubOAuthDTO githubOAuthDTO) {
-        OAuth2ClientProperties.Provider pov =
-                oAuth2ClientProperties.getProvider().get(OAuthConstants.GITHUB);
-
-        OAuth2ClientProperties.Registration reg =
-                oAuth2ClientProperties.getRegistration().get(OAuthConstants.GITHUB);
-
         return UriComponentsBuilder
-                .fromUriString(Objects.requireNonNull(pov.getAuthorizationUri()))
-                .queryParam("client_id", reg.getClientId())
-                .queryParam("client_secret", reg.getClientSecret())
-                .queryParam("redirect_uri", reg.getRedirectUri())
-                .queryParam("scope", reg.getScope())
+                .fromUriString(Objects.requireNonNull(provider.getAuthorizationUri()))
+                .queryParam("client_id", registration.getClientId())
+                .queryParam("client_secret", registration.getClientSecret())
+                .queryParam("redirect_uri", registration.getRedirectUri())
+                .queryParam("scope", registration.getScope())
                 .queryParam("state", githubOAuthDTO.getState())
                 .queryParam("response_type", "code")
                 .toUriString();

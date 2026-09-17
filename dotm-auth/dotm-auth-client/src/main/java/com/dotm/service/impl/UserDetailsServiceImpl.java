@@ -1,9 +1,10 @@
 package com.dotm.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.dotm.entity.model.SysMenu;
-import com.dotm.entity.model.SysRole;
-import com.dotm.entity.model.SysUser;
+import com.dotm.entity.model.system.SysMenu;
+import com.dotm.entity.model.system.SysRole;
+import com.dotm.entity.model.system.SysUser;
+import com.framework.service.IUserDetailsService;
 import com.framework.exception.user.UserNotExistsException;
 import com.framework.model.LoginBodyAuthentication;
 import com.dotm.service.SysRoleService;
@@ -12,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class UserDetailsServiceImpl implements IUserDetailsService {
 
     private final SysUserService sysUserService;
 
@@ -70,5 +70,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         loginBody.setMenuIds(menuIds);
 
         return loginBody;
+    }
+
+    /**
+     * 用ID来进行用户授权以及校验
+     */
+    @Override
+    public UserDetails loadUserById(Long id) {
+        SysUser user = sysUserService.getById(id);
+        return loadUserByUsername(user.getUserName());
     }
 }

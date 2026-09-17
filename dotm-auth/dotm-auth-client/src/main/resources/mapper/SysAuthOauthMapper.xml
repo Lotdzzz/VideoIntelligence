@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dotm.mapper.SysAuthOauthMapper">
 
-    <resultMap id="BaseResultMap" type="com.dotm.entity.model.SysAuthOauth">
+    <resultMap id="BaseResultMap" type="com.dotm.entity.model.oauth.SysAuthOauth">
             <id property="oauthId" column="oauth_id" />
             <result property="userId" column="user_id" />
             <result property="provider" column="provider" />

@@ -3,7 +3,7 @@ package com.dotm.aspectj;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.framework.constants.TokenConstants;
 import com.dotm.entity.dto.login.LoginBodyDTO;
-import com.dotm.entity.model.SysUser;
+import com.dotm.entity.model.system.SysUser;
 import com.dotm.service.SysUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

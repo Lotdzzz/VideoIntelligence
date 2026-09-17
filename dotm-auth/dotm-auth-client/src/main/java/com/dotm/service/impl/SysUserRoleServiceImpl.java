@@ -2,7 +2,7 @@ package com.dotm.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
-import com.dotm.entity.model.SysUserRole;
+import com.dotm.entity.model.system.SysUserRole;
 import com.dotm.mapper.SysUserRoleMapper;
 import com.dotm.service.SysUserRoleService;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,7 @@
 package com.dotm.controller;
 
 import com.dotm.entity.dto.oauth.GithubOAuthCodeDTO;
+import com.dotm.entity.vo.GithubCallBackVO;
 import com.dotm.service.GithubOAuthService;
 import com.framework.constants.TokenConstants;
 import com.framework.model.Result;
@@ -42,13 +43,16 @@ public class Oauth2Controller {
      * @return 返回真实的github用户信息
      */
     @GetMapping("/github/callback")
-    public Result<Object> githubCallback(GithubOAuthCodeDTO githubOAuthCodeDTO, HttpServletRequest request) {
+    public Result<GithubCallBackVO> githubCallback(GithubOAuthCodeDTO githubOAuthCodeDTO, HttpServletRequest request) {
         //获取设备信息
         String userAgent = request.getHeader(TokenConstants.USER_AGENT);
+        //获取用户真实ip
+        String ip = request.getHeader(TokenConstants.X_REAL_IP);
+
         githubOAuthCodeDTO.setUserAgent(userAgent);
+        githubOAuthCodeDTO.setIp(ip);
         // 通过github获取用户信息
-        String token = githubOAuthService.githubCallBackHandler(githubOAuthCodeDTO);
-        //重定向到前端
-        return Result.success(token);
+        GithubCallBackVO githubCallBackVO = githubOAuthService.githubCallBackHandler(githubOAuthCodeDTO);
+        return Result.success(githubCallBackVO);
     }
 }

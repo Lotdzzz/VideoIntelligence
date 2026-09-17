@@ -8,7 +8,7 @@ import com.dotm.constants.OAuthConstants;
 import com.dotm.constants.UserConstants;
 import com.dotm.entity.dto.oauth.SysAuthOauthDTO;
 import com.dotm.entity.dto.system.SysUserDTO;
-import com.dotm.entity.model.SysAuthOauth;
+import com.dotm.entity.model.oauth.SysAuthOauth;
 import com.dotm.entity.vo.GithubUserVO;
 import com.dotm.entity.vo.SysAuthOauthVO;
 import com.dotm.mapper.SysAuthOauthMapper;
@@ -120,13 +120,10 @@ public class SysAuthOauthServiceImpl extends ServiceImpl<SysAuthOauthMapper, Sys
      */
     @Override
     @Transactional
-    public boolean bindAuthOauth(SysAuthOauthDTO dto) {
+    public boolean bindAuthOauth(SysAuthOauth sysAuthOauth) {
         //先按第三方平台和第三方用户唯一ID查询是否已经绑定过
-        SysAuthOauth existOauth = sysAuthOauthMapper.selectByProviderAndOpenId(dto.getProvider(), dto.getOpenId());
-
-        //DTO转换为绑定实体
-        SysAuthOauth sysAuthOauth = new SysAuthOauth();
-        BeanUtils.copyProperties(dto, sysAuthOauth);
+        SysAuthOauth existOauth = sysAuthOauthMapper.selectByProviderAndOpenId(
+                sysAuthOauth.getProvider(), sysAuthOauth.getOpenId());
 
         //已存在绑定记录则更新 避免再次插入触发唯一键uk_provider_open_id冲突
         if (existOauth != null) {

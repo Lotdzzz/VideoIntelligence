@@ -1,56 +1,51 @@
-package com.dotm.entity.model;
+package com.dotm.entity.model.system;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * @author dotm
- * 角色信息表
+ * 用户信息表
+ * @TableName sys_user
  */
-@TableName(value = "sys_role")
+@TableName(value ="sys_user")
 @Data
-public class SysRole {
+public class SysUser {
     /**
-     * 角色ID
+     * 用户ID
      */
     @TableId(type = IdType.AUTO)
-    private Long roleId;
+    private Long userId;
 
     /**
-     * 角色名称
+     * 用户账号
      */
-    private String roleName;
+    private String userName;
 
     /**
-     * 角色权限字符串
+     * 用户昵称
      */
-    private String roleKey;
+    private String nickName;
 
     /**
-     * 显示顺序
+     * 用户邮箱
      */
-    private Integer roleSort;
+    private String email;
 
     /**
-     * 数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+     * 头像地址
      */
-    private String dataScope;
+    private String avatar;
 
     /**
-     * 菜单树选择项是否关联显示
+     * 密码
      */
-    private Integer menuCheckStrictly;
+    private String password;
 
     /**
-     * 部门树选择项是否关联显示
-     */
-    private Integer deptCheckStrictly;
-
-    /**
-     * 角色状态（0正常 1停用）
+     * 账号状态（0正常 1停用）
      */
     private String status;
 
@@ -59,6 +54,21 @@ public class SysRole {
      */
     @TableLogic(value = "0", delval = "1")
     private String delFlag;
+
+    /**
+     * 最后登录IP
+     */
+    private String loginIp;
+
+    /**
+     * 最后登录时间
+     */
+    private LocalDateTime loginDate;
+
+    /**
+     * 密码最后更新时间
+     */
+    private LocalDateTime pwdUpdateDate;
 
     /**
      * 创建者
@@ -86,11 +96,4 @@ public class SysRole {
      * 备注
      */
     private String remark;
-
-    /**
-     * 菜单列表
-     */
-    @TableField(exist = false)
-    private List<Long> menuIds;
 }
-

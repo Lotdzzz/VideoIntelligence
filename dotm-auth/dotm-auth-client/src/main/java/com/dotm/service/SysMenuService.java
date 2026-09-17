@@ -3,7 +3,7 @@ package com.dotm.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.spring.service.IService;
 import com.dotm.entity.dto.system.SysMenuDTO;
-import com.dotm.entity.model.SysMenu;
+import com.dotm.entity.model.system.SysMenu;
 import com.dotm.entity.vo.SysMenuVO;
 
 import java.util.List;

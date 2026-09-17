@@ -24,4 +24,9 @@ public class GithubOAuthCodeDTO {
      * 设备指纹
      */
     private String userAgent;
+
+    /**
+     * 用户真实ip
+     */
+    private String ip;
 }

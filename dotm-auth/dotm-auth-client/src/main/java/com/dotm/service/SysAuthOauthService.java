@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.spring.service.IService;
 import com.dotm.entity.dto.oauth.SysAuthOauthDTO;
 import com.dotm.entity.dto.system.SysUserDTO;
-import com.dotm.entity.model.SysAuthOauth;
+import com.dotm.entity.model.oauth.SysAuthOauth;
 import com.dotm.entity.vo.GithubUserVO;
 import com.dotm.entity.vo.SysAuthOauthVO;
 
@@ -55,10 +55,10 @@ public interface SysAuthOauthService extends IService<SysAuthOauth> {
     /**
      * 绑定第三方账号 已存在同平台同openId的记录时更新为最新信息
      *
-     * @param dto 绑定入参
+     * @param sysAuthOauth 绑定入参
      * @return 是否成功
      */
-    boolean bindAuthOauth(SysAuthOauthDTO dto);
+    boolean bindAuthOauth(SysAuthOauth sysAuthOauth);
 
     /**
      * 解绑第三方账号
