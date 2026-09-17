@@ -1,3 +1,4 @@
 com.framework.config.WebConfig
 com.framework.filter.xss.XssFilter
 com.framework.properties.XssFilterExcludes
+com.framework.exception.GlobalExceptionHandler

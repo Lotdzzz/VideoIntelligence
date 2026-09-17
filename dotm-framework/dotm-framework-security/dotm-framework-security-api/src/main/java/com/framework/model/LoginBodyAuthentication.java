@@ -75,6 +75,7 @@ public class LoginBodyAuthentication extends LoginBodyModel implements UserDetai
 
     /**
      * 以下四个方法必须加上@JsonIgnore不然序列化redis会出错
+     * 返回true表示通过检查 false表示不通过检查
      */
     @JsonIgnore
     @Override

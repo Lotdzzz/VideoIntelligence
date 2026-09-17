@@ -141,7 +141,7 @@ public class GithubOAuthServiceImpl implements GithubOAuthService {
         user.setIp(githubOAuthCodeDTO.getIp());
 
         // 获取token
-        String token = createToken(Objects.requireNonNull(user), githubOAuthCodeDTO.getUserAgent(), githubOAuthCodeDTO.getIp());
+        String token = createToken(Objects.requireNonNull(user));
 
         // 返回结果
         return GithubCallBackVO.builder()
@@ -181,11 +181,9 @@ public class GithubOAuthServiceImpl implements GithubOAuthService {
      * 生成jwt token的抽离方法
      *
      * @param user      认证用户信息
-     * @param userAgent 用户设备指纹
-     * @param ip        用户ip
      * @return jwt
      */
-    private String createToken(LoginBodyAuthentication user, String userAgent, String ip) {
+    private String createToken(LoginBodyAuthentication user) {
         //生成jwt返回前端 这里会存入redis用户数据
         return authTokenService.createJwtToken(user);
     }

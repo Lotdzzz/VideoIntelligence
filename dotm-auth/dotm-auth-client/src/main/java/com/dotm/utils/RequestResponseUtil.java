@@ -89,8 +89,7 @@ public class RequestResponseUtil {
             // 网络层：超时 / 连不上 / DNS 失败
             Throwable cause = e.getCause();
             if (isTimeout(cause)) {
-                // 如果 LoginTimeOutException 是受检异常，按你原来的方式包一层
-                return new RuntimeException(new LoginTimeOutException(e.getMessage()));
+                return new LoginTimeOutException(e.getMessage());
             }
             return new LoginNetError(e.getMessage());
         }

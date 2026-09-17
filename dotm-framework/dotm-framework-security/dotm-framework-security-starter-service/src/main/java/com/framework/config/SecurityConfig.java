@@ -65,7 +65,8 @@ public class SecurityConfig {
                 // 如果没带 Token 访问，返回自定义的 JSON (401)，而不是默认的报错页
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(authenticationEntryPoint)
-                        .accessDeniedHandler(customAccessDeniedHandler))
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
                 .authorizeHttpRequests(auth -> {
                     //因为在网关层面以做到白名单所以此处全部放行
                     auth.requestMatchers(HttpMethod.OPTIONS, SecurityURLPathConstants.ALL).permitAll()

@@ -89,11 +89,11 @@ public class GithubAuthenticationProvider implements AuthenticationProvider {
             throw new UserNotExistsException(null);
         }
         // 判断用户是否过期
-        if (userDetails.isAccountNonExpired()) {
+        if (!userDetails.isAccountNonExpired()) {
             throw new UserAccountExpired(null);
         }
         // 判断用户是否锁定
-        if (userDetails.isAccountNonLocked()) {
+        if (!userDetails.isAccountNonLocked()) {
             throw new UserLockedException(null);
         }
     }

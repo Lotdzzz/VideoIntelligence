@@ -68,11 +68,11 @@ public class ExceptionConstants {
      * 异常模块
      */
 
-    public static final String USER = "user";
+    public static final String USER = "用户错误：";
 
-    public static final String GATEWAY = "gateway";
+    public static final String GATEWAY = "网关错误：";
 
-    public static final String ROLE = "role";
+    public static final String ROLE = "角色错误：";
 
     /**
      * 文件上传模块
