@@ -1,6 +1,10 @@
 export const routesConstants = {
     //首页
     HOME: '/index',
+    //获取当前登录用户信息
+    GET_USER_INFO: '/auth/getUserInfo',
+    //静态文件（头像等）访问前缀
+    UPLOAD: '/upload',
 }
 
 export const routesIndexConstants = {

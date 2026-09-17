@@ -29,11 +29,6 @@ export default defineConfig({
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api/, ''),
             },
-            // 静态文件上传目录：/upload 直接代理到网关，不做前缀重写
-            '/upload': {
-                target: constants.GATEWAY_URL,
-                changeOrigin: true,
-            },
         },
     },
 })

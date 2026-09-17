@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { githubCallback } from '@/api/oauth'
-import { OAUTH_STATE_KEY } from '@/constants/oauthConstants'
-import { routesConstants } from '@/constants/routesConstants'
-import { hasExchangeStarted, markExchangeStarted } from '@/utils/oauthExchangeGuard'
-import { setToken } from '@/utils/token'
+import {onMounted, ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {githubCallback} from '@/api/oauth'
+import {OAUTH_STATE_KEY} from '@/constants/oauthConstants'
+import {routesConstants} from '@/constants/routesConstants'
+import {AUTH_ERROR_FALLBACK_MESSAGE, resolveAuthErrorMessage} from '@/utils/authError'
+import {hasExchangeStarted, markExchangeStarted} from '@/utils/oauthExchangeGuard'
+import {setToken} from '@/utils/token'
 
 const route = useRoute()
 const router = useRouter()
@@ -20,98 +21,72 @@ const errorMessage = ref('')
 const readQueryValue = (value: unknown): string => (typeof value === 'string' ? value : '')
 
 /**
- * 后端用户异常的 message 形如 user + code（UserException 的拼装方式）
- * 这里去掉前缀并转换成前端可读的提示
+ * 登录失败提示统一由 utils/authError 解析：
+ * 后端 Result.error(e.getMessage()) 的 msg 原样展示，不做任何前端映射；
+ * 后端未提供 msg（401 / 未被全局异常处理器覆盖的异常 / 网络异常）时才使用统一兜底提示
  */
-const formatAuthError = (message: string): string => {
-    const detail = message.startsWith('user') ? message.slice(4) : message
-    if (detail === '' || detail === 'null') {
-        return '登录状态已失效，请重新登录'
-    }
-    if (detail === 'bad_verification_code') {
-        return '授权码已失效，请重新登录'
-    }
-    if (detail === 'redirect_uri_mismatch') {
-        return '回调地址配置不一致，请联系管理员'
-    }
-    return detail
-}
-
-/** 从异常对象里提取后端或网络层的错误信息 */
-const resolveErrorMessage = (error: unknown): string => {
-    if (error && typeof error === 'object') {
-        const detail = error as Record<string, unknown>
-        if (typeof detail.msg === 'string' && detail.msg !== '') {
-            return formatAuthError(detail.msg)
-        }
-        if (typeof detail.message === 'string' && detail.message !== '') {
-            return detail.message
-        }
-    }
-    return '登录失败，请稍后重试'
-}
 
 /** 回到首页，首页右上角可再次发起 GitHub 登录 */
 const handleBackHome = () => {
-    router.replace(routesConstants.HOME)
+  router.replace(routesConstants.HOME)
 }
 
 onMounted(async () => {
-    // 先取出参数，再清理地址栏，避免用户刷新时重复使用一次性授权码
-    const code = readQueryValue(route.query.code)
-    const state = readQueryValue(route.query.state)
-    const githubError = readQueryValue(route.query.error)
-    const githubErrorDescription = readQueryValue(route.query.error_description)
+  // 先取出参数，再清理地址栏，避免用户刷新时重复使用一次性授权码
+  const code = readQueryValue(route.query.code)
+  const state = readQueryValue(route.query.state)
+  const githubError = readQueryValue(route.query.error)
+  const githubErrorDescription = readQueryValue(route.query.error_description)
 
-    await router.replace({ query: {} })
+  await router.replace({query: {}})
 
-    // 用户在 github 页面拒绝授权
-    if (githubError !== '') {
-        loading.value = false
-        errorMessage.value = githubErrorDescription !== '' ? githubErrorDescription : '已取消 GitHub 授权'
-        return
+  // 用户在 github 页面拒绝授权
+  if (githubError !== '') {
+    loading.value = false
+    errorMessage.value = githubErrorDescription !== '' ? githubErrorDescription : '已取消 GitHub 授权'
+    return
+  }
+
+  if (code === '' || state === '') {
+    loading.value = false
+    errorMessage.value = '缺少授权参数，请重新登录'
+    return
+  }
+
+  // 一次性闸门：同一个 state 只允许兑换一次
+  // 刷新 / 重新挂载 / 标签恢复 / 多标签 / HMR 都不会再打后端
+  if (hasExchangeStarted(state)) {
+    loading.value = false
+    errorMessage.value = '该授权码已使用，请重新登录'
+    return
+  }
+
+  // 校验 state：与发起登录时暂存的值比对（后端还会再校验一次 redis 中的 state）
+  const expectedState = sessionStorage.getItem(OAUTH_STATE_KEY)
+  sessionStorage.removeItem(OAUTH_STATE_KEY)
+  if (expectedState !== null && expectedState !== state) {
+    loading.value = false
+    errorMessage.value = '登录状态校验失败，请重新登录'
+    return
+  }
+
+  // 发请求之前先打标记，保证即使请求过程中页面被重新加载也不会重复请求
+  markExchangeStarted(state)
+
+  try {
+    // 交给后端换取 jwt
+    const token = await githubCallback({code, state})
+    if (!token) {
+      loading.value = false
+      errorMessage.value = AUTH_ERROR_FALLBACK_MESSAGE
+      return
     }
-
-    if (code === '' || state === '') {
-        loading.value = false
-        errorMessage.value = '缺少授权参数，请重新登录'
-        return
-    }
-
-    // 一次性闸门：同一个 state 只允许兑换一次
-    // 刷新 / 重新挂载 / 标签恢复 / 多标签 / HMR 都不会再打后端
-    if (hasExchangeStarted(state)) {
-        loading.value = false
-        errorMessage.value = '该授权码已使用，请重新登录'
-        return
-    }
-
-    // 校验 state：与发起登录时暂存的值比对（后端还会再校验一次 redis 中的 state）
-    const expectedState = sessionStorage.getItem(OAUTH_STATE_KEY)
-    sessionStorage.removeItem(OAUTH_STATE_KEY)
-    if (expectedState !== null && expectedState !== state) {
-        loading.value = false
-        errorMessage.value = '登录状态校验失败，请重新登录'
-        return
-    }
-
-    // 发请求之前先打标记，保证即使请求过程中页面被重新加载也不会重复请求
-    markExchangeStarted(state)
-
-    try {
-        // 交给后端换取 jwt
-        const token = await githubCallback({ code, state })
-        if (!token) {
-            loading.value = false
-            errorMessage.value = '登录失败，请稍后重试'
-            return
-        }
-        setToken(token)
-        await router.replace(routesConstants.HOME)
-    } catch (error) {
-        loading.value = false
-        errorMessage.value = resolveErrorMessage(error)
-    }
+    setToken(token)
+    await router.replace(routesConstants.HOME)
+  } catch (error) {
+    loading.value = false
+    errorMessage.value = resolveAuthErrorMessage(error)
+  }
 })
 </script>
 
@@ -127,7 +102,7 @@ onMounted(async () => {
       <template v-else>
         <svg class="callback-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path
-            d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 4.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM13.25 17h-2.5v-.9h.75v-3.6h-.75v-.9h1.75v4.5h.75v.9Z"
+              d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 4.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM13.25 17h-2.5v-.9h.75v-3.6h-.75v-.9h1.75v4.5h.75v.9Z"
           />
         </svg>
         <p class="callback-title">登录失败</p>

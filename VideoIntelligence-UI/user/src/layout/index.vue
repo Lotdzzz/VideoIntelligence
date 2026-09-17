@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { routesConstants, routesIndexConstants } from '@/constants/routesConstants'
-import { removeToken } from '@/utils/token'
+import { routesConstants } from '@/constants/routesConstants'
+import { getUserInfo } from '@/api/user'
+import { useUserStore } from '@/stores/user'
+import { resolveAuthErrorMessage } from '@/utils/authError'
+import { resolveFileUrl } from '@/utils/file'
+import { getToken, removeToken } from '@/utils/token'
 import LoginDialog from '@/components/LoginDialog.vue'
+import type { UserInfo } from '@/types/user/userInfo'
 
 const isCollapse = ref(false)
 
@@ -16,11 +21,40 @@ const toggleSidebar = () => {
   isCollapse.value = !isCollapse.value
 }
 
-// 当前登录用户信息，后续可替换为接口 / 状态管理中的数据
-const userInfo = ref({
-  name: '用户',
-  role: '普通用户',
-  avatarText: '用',
+// ==================== 登录态 ====================
+
+/** 用户信息统一由 pinia store 接收（登录态、头像、昵称等都从这里读） */
+const userStore = useUserStore()
+
+/** 是否已登录 */
+const isLogin = computed(() => userStore.isLogin)
+
+/** 游客兜底展示信息 */
+const GUEST_USER = {
+  name: '游客',
+  role: '未登录',
+  avatarText: '游',
+  avatarUrl: '',
+}
+
+/**
+ * 用户区展示信息
+ * 未登录展示游客；已登录展示接口返回的头像与昵称（昵称为空时退回账号）
+ */
+const displayUser = computed(() => {
+  if (!userStore.isLogin) {
+    return GUEST_USER
+  }
+  const info = userStore.userInfo
+  const name = info.nickName || info.userName || '用户'
+  return {
+    name,
+    // 副标题展示账号，便于区分同名昵称
+    role: info.userName || '普通用户',
+    avatarText: name.slice(0, 1),
+    // 第三方登录返回完整地址，本地上传返回文件名，统一在这里转换
+    avatarUrl: resolveFileUrl(info.avatar),
+  }
 })
 
 // 用户下拉框是否展开，用于给用户框添加高亮态
@@ -30,35 +64,70 @@ const handleUserMenuVisibleChange = (visible: boolean) => {
   userMenuVisible.value = visible
 }
 
-// 清除本地登录凭证
+/**
+ * 清除本地登录凭证与登录态
+ * 注意：user 端没有 /login 路由，跳转登录页只会落到 404，
+ * 因此这里只清理本地状态，页面停留原地并以游客态展示
+ */
 const clearLoginState = () => {
   removeToken()
+  userStore.clearUserInfo()
 }
 
-// 回到登录页（与 utils/request.ts 中 401 的处理方式保持一致）
-const goLoginPage = () => {
-  window.location.href = routesIndexConstants.LOGIN
+/**
+ * 拉取当前登录用户信息
+ * - 无 token：直接按游客处理，不发请求
+ * - 有 token：token 失效或接口异常时清理凭证并降级为游客，同时提示用户
+ */
+const fetchLoginUser = async () => {
+  if (!getToken()) {
+    clearLoginState()
+    return
+  }
+  try {
+    const info = (await getUserInfo()) as unknown as UserInfo
+    // 统一存入 pinia，左下角用户区与后续页面都从这里读取
+    userStore.setUserInfo(info)
+  } catch (error) {
+    clearLoginState()
+    ElMessage.warning(resolveAuthErrorMessage(error))
+  }
 }
 
-// 退出登录
-const handleLogout = () => {
-  clearLoginState()
-  ElMessage.success('已退出登录')
-  goLoginPage()
+// 打开登录弹窗：未登录时是「登录」，已登录时是「切换账户」，两者共用同一个弹窗
+const openLoginDialog = () => {
+  loginDialogVisible.value = true
 }
 
 // 切换账户：弹出扫码登录弹窗（演示阶段，弹窗内点击二维码即模拟登录成功）
 const handleSwitchAccount = () => {
-  loginDialogVisible.value = true
+  openLoginDialog()
+}
+
+// 退出登录：清除凭证后停留当前页，用户区回落为游客态
+const handleLogout = () => {
+  clearLoginState()
+  ElMessage.success('已退出登录')
+}
+
+// 登录弹窗内登录成功（演示渠道）：重新读取一次登录态
+const handleLoginSuccess = () => {
+  fetchLoginUser()
 }
 
 const handleUserCommand = (command: string) => {
-  if (command === 'logout') {
-    handleLogout()
+  if (command === 'login') {
+    openLoginDialog()
   } else if (command === 'switch') {
     handleSwitchAccount()
+  } else if (command === 'logout') {
+    handleLogout()
   }
 }
+
+onMounted(() => {
+  fetchLoginUser()
+})
 </script>
 
 <template>
@@ -96,10 +165,12 @@ const handleUserCommand = (command: string) => {
           @visible-change="handleUserMenuVisibleChange"
         >
           <div class="user-box" :class="{ 'is-active': userMenuVisible }">
-            <div class="avatar">{{ userInfo.avatarText }}</div>
+            <el-avatar class="avatar" :size="32" :src="displayUser.avatarUrl">
+              {{ displayUser.avatarText }}
+            </el-avatar>
             <div v-show="!isCollapse" class="user-info">
-              <div class="username">{{ userInfo.name }}</div>
-              <div class="user-role">{{ userInfo.role }}</div>
+              <div class="username" :title="displayUser.name">{{ displayUser.name }}</div>
+              <div class="user-role" :title="displayUser.role">{{ displayUser.role }}</div>
             </div>
             <span v-show="!isCollapse" class="user-arrow">
               <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
@@ -110,7 +181,19 @@ const handleUserCommand = (command: string) => {
 
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="switch">
+              <!-- 未登录：只提供登录入口（与「切换账户」共用同一个登录弹窗） -->
+              <el-dropdown-item v-if="!isLogin" command="login">
+                <span class="user-menu-item">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path
+                      d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 1.8c-3.6 0-6.6 1.9-6.6 4.3V21h13.2v-2.9c0-2.4-3-4.3-6.6-4.3Z"
+                    />
+                  </svg>
+                  <span>登录</span>
+                </span>
+              </el-dropdown-item>
+              <!-- 已登录：可切换账户 / 退出登录 -->
+              <el-dropdown-item v-else command="switch">
                 <span class="user-menu-item">
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                     <path
@@ -120,7 +203,7 @@ const handleUserCommand = (command: string) => {
                   <span>切换账户</span>
                 </span>
               </el-dropdown-item>
-              <el-dropdown-item command="logout" divided>
+              <el-dropdown-item v-if="isLogin" command="logout" divided>
                 <span class="user-menu-item">
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                     <path
@@ -156,8 +239,13 @@ const handleUserCommand = (command: string) => {
       </main>
     </div>
 
-    <!-- 切换账户弹窗（演示阶段：扫码登录为本地模拟，未接入后端） -->
-    <LoginDialog v-model="loginDialogVisible" />
+    <!-- 登录 / 切换账户弹窗（演示阶段：扫码登录为本地模拟；GitHub 为真实跳转式授权） -->
+    <LoginDialog
+      v-model="loginDialogVisible"
+      :title="isLogin ? '切换账户' : '登录'"
+      :subtitle="isLogin ? '使用第三方账号扫码登录' : '使用第三方账号登录'"
+      @success="handleLoginSuccess"
+    />
   </div>
 </template>
 
@@ -240,14 +328,9 @@ const handleUserCommand = (command: string) => {
   background: #eef4ff;
 }
 
+/* el-avatar 自带尺寸与圆形裁剪，这里只覆盖配色，保持原蓝色头像观感 */
 .avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
   flex-shrink: 0;
-  border-radius: 50%;
   background: #1677ff;
   color: #ffffff;
   font-size: 14px;
@@ -271,6 +354,9 @@ const handleUserCommand = (command: string) => {
 .user-role {
   font-size: 12px;
   color: #909399;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-arrow {

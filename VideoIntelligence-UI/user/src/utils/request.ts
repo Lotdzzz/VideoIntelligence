@@ -2,7 +2,6 @@ import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { ElMessage } from 'element-plus';
 import { getToken, removeToken } from './token';
-import { routesIndexConstants } from '@/constants/routesConstants';
 import { constants } from '@/constants/configuration';
 
 const service: AxiosInstance = axios.create({
@@ -80,11 +79,12 @@ service.interceptors.response.use(
   },
   error => {
 
-    // 401 未授权：token 过期或无效，清除 token 并跳转登录页
+    // 401 未授权：token 过期或无效，只清除本地凭证，响应体原样透传给调用方，
+    // 由调用方展示后端 msg（401 时后端固定返回 {"code": "401"}，没有 msg，会走统一兜底提示）
+    // 注意：这里不跳转登录页（user 端没有 /login 路由，跳转只会落到 404 页面）
     if (error.response && error.response.status === 401) {
       removeToken()
-      window.location.href = routesIndexConstants.LOGIN
-      return Promise.reject(error)
+      return Promise.reject(error.response.data)
     }
 
     // 业务错误：后端返回了统一响应体（Result），直接透传给调用方，
