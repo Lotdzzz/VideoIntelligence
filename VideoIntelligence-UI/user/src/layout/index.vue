@@ -8,6 +8,7 @@ import { resolveAuthErrorMessage } from '@/utils/authError'
 import { resolveFileUrl } from '@/utils/file'
 import { getToken, removeToken } from '@/utils/token'
 import LoginDialog from '@/components/LoginDialog.vue'
+import { logout } from '@/api/Logout'
 import type { UserInfo } from '@/types/user/userInfo'
 
 const isCollapse = ref(false)
@@ -104,9 +105,21 @@ const handleSwitchAccount = () => {
   openLoginDialog()
 }
 
-// 退出登录：清除凭证后停留当前页，用户区回落为游客态
-const handleLogout = () => {
-  clearLoginState()
+// 退出登录：先注销服务端登录信息，再清除本地凭证，最后停留当前页，用户区回落为游客态
+const handleLogout = async () => {
+  try {
+    // 必须先调接口再清 token：
+    // logout 不在网关白名单内，token 由 utils/request.ts 的请求拦截器从 localStorage 读取后
+    // 注入请求头 Authorization，若先执行 clearLoginState()，请求会因缺少 token 被网关拦成 401，
+    // 服务端 redis 中的登录信息也就删除不掉
+    await logout()
+  } catch (error) {
+    // 服务端注销失败（token 已过期、网络异常等）不阻断本地登出，避免卡住用户
+    // 此处静默吞掉错误：本地凭证照常清除，服务端残留的失效 token 由网关校验拦截，不会造成越权
+  } finally {
+    // 无论服务端结果如何都要清本地凭证，避免本地残留一个已经失效的 token
+    clearLoginState()
+  }
   ElMessage.success('已退出登录')
 }
 

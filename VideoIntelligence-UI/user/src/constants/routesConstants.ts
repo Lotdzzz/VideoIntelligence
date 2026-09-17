@@ -5,6 +5,8 @@ export const routesConstants = {
     GET_USER_INFO: '/auth/getUserInfo',
     //静态文件（头像等）访问前缀
     UPLOAD: '/upload',
+    //退出登录接口
+    LOGOUT: '/auth/logout',
 }
 
 export const routesIndexConstants = {
