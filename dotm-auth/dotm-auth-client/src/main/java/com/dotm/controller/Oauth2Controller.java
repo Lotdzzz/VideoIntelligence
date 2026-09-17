@@ -43,7 +43,7 @@ public class Oauth2Controller {
      * @return 返回真实的github用户信息
      */
     @GetMapping("/github/callback")
-    public Result<GithubCallBackVO> githubCallback(GithubOAuthCodeDTO githubOAuthCodeDTO, HttpServletRequest request) {
+    public Result<Object> githubCallback(GithubOAuthCodeDTO githubOAuthCodeDTO, HttpServletRequest request) {
         //获取设备信息
         String userAgent = request.getHeader(TokenConstants.USER_AGENT);
         //获取用户真实ip
@@ -53,6 +53,6 @@ public class Oauth2Controller {
         githubOAuthCodeDTO.setIp(ip);
         // 通过github获取用户信息
         GithubCallBackVO githubCallBackVO = githubOAuthService.githubCallBackHandler(githubOAuthCodeDTO);
-        return Result.success(githubCallBackVO);
+        return Result.success(githubCallBackVO.getToken());
     }
 }
