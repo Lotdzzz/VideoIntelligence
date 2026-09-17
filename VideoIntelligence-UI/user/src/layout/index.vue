@@ -99,7 +99,7 @@ const openLoginDialog = () => {
   loginDialogVisible.value = true
 }
 
-// 切换账户：弹出扫码登录弹窗（演示阶段，弹窗内点击二维码即模拟登录成功）
+// 切换账户：弹出 GitHub 授权登录弹窗
 const handleSwitchAccount = () => {
   openLoginDialog()
 }
@@ -108,11 +108,6 @@ const handleSwitchAccount = () => {
 const handleLogout = () => {
   clearLoginState()
   ElMessage.success('已退出登录')
-}
-
-// 登录弹窗内登录成功（演示渠道）：重新读取一次登录态
-const handleLoginSuccess = () => {
-  fetchLoginUser()
 }
 
 const handleUserCommand = (command: string) => {
@@ -239,12 +234,11 @@ onMounted(() => {
       </main>
     </div>
 
-    <!-- 登录 / 切换账户弹窗（演示阶段：扫码登录为本地模拟；GitHub 为真实跳转式授权） -->
+    <!-- 登录 / 切换账户弹窗：使用 GitHub 账号授权登录 -->
     <LoginDialog
       v-model="loginDialogVisible"
       :title="isLogin ? '切换账户' : '登录'"
-      :subtitle="isLogin ? '使用第三方账号扫码登录' : '使用第三方账号登录'"
-      @success="handleLoginSuccess"
+      subtitle="使用 GitHub 账号登录"
     />
   </div>
 </template>

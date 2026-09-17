@@ -17,7 +17,7 @@ const router = createRouter({
             component: Layout,
         },
         {
-            // GitHub 等第三方登录的授权回调页：无布局，独立整页展示
+            // GitHub 授权回调页：无布局，独立整页展示
             path: routesIndexConstants.OAUTH_CALLBACK,
             name: 'OauthCallback',
             component: () => import('@/views/oauth/GithubCallback.vue'),
