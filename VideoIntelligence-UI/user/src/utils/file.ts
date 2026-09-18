@@ -19,3 +19,26 @@ export function resolveFileUrl(fileName?: string | null): string {
   const name = fileName.replace(/^\/+/, '')
   return `${routesConstants.UPLOAD}/${name}`
 }
+
+/**
+ * 将文件大小（字节）格式化为可读文案
+ * 沿用 1024 进制与 1 位小数，避免卡片上出现「12345678」这种原始字节数
+ *
+ * @param bytes 后端返回的 fileSize（可能为空）
+ * @returns 形如 12.3 MB 的文案，无值时返回空串
+ */
+export function formatFileSize(bytes?: number | null): string {
+  if (bytes === null || bytes === undefined || Number.isNaN(bytes) || bytes <= 0) {
+    return ''
+  }
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let size = bytes
+  let unitIndex = 0
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024
+    unitIndex += 1
+  }
+  // 字节数不带小数（避免出现 512.0 B）
+  const value = unitIndex === 0 ? String(size) : size.toFixed(1)
+  return `${value} ${units[unitIndex]}`
+}

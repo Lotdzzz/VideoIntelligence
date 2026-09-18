@@ -1,5 +1,8 @@
+import { resolveErrorMessage } from './errorMessage'
+
 /**
  * 登录相关错误的提示文案解析
+ * 具体解析规则（原样展示后端 msg、无 msg 时的三类兜底场景）见 utils/errorMessage.ts
  *
  * 约定：后端异常统一由 GlobalExceptionHandler 返回 Result.error(e.getMessage())，
  * 即 HTTP 200 + { code: 500, msg: "..." }，前端一律「原样展示后端 msg」，
@@ -21,12 +24,5 @@ export const AUTH_ERROR_FALLBACK_MESSAGE = '登录失败，请稍后重试'
  * @returns 后端 msg 原样文案；后端没有 msg 时返回统一兜底提示
  */
 export function resolveAuthErrorMessage(error: unknown): string {
-    // 统一响应体 Result：{ code, msg, data }，msg 由后端异常决定，原样返回
-    if (error && typeof error === 'object') {
-        const detail = error as Record<string, unknown>
-        if (typeof detail.msg === 'string' && detail.msg !== '') {
-            return detail.msg
-        }
-    }
-    return AUTH_ERROR_FALLBACK_MESSAGE
+    return resolveErrorMessage(error, AUTH_ERROR_FALLBACK_MESSAGE)
 }

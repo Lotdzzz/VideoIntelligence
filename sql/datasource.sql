@@ -194,8 +194,11 @@ CREATE TABLE sys_auth_oauth
 
 ) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT='第三方账号绑定表';
 
--- 未执行的sql
-CREATE TABLE sys_file
+-- ----------------------------
+-- VI资源文件表
+-- ----------------------------
+DROP TABLE IF EXISTS vi_file;
+CREATE TABLE vi_file
 (
     id            BIGINT       NOT NULL AUTO_INCREMENT COMMENT '文件ID',
     user_id       BIGINT       NOT NULL COMMENT '所属用户ID',
@@ -207,6 +210,8 @@ CREATE TABLE sys_file
     file_type     VARCHAR(50)           DEFAULT NULL COMMENT '文件类型，如 video/audio/image/document',
     file_ext      VARCHAR(20)           DEFAULT NULL COMMENT '文件扩展名，如 mp4/pdf/jpg',
     content_type  VARCHAR(100)          DEFAULT NULL COMMENT 'MIME类型，如 video/mp4',
+
+    cover         VARCHAR(255)         DEFAULT NULL COMMENT '封面图URL，适用于视频/音频/文档等',
 
     file_size     BIGINT       NOT NULL DEFAULT 0 COMMENT '文件大小，单位：字节',
 
@@ -231,9 +236,13 @@ CREATE TABLE sys_file
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
-    COMMENT ='用户文件表';
+    COMMENT ='资源文件表';
 
-CREATE TABLE sys_file_category
+-- ----------------------------
+-- VI资源文件分类表
+-- ----------------------------
+DROP TABLE IF EXISTS vi_file_category;
+CREATE TABLE vi_file_category
 (
     id            BIGINT       NOT NULL AUTO_INCREMENT COMMENT '分类ID',
     user_id       BIGINT       NOT NULL COMMENT '所属用户ID',
@@ -252,4 +261,4 @@ CREATE TABLE sys_file_category
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
-    COMMENT ='用户文件分类表';
+    COMMENT ='资源文件分类表';

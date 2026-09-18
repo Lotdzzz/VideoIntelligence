@@ -1,13 +1,41 @@
 export const routesConstants = {
     //首页
     HOME: '/index',
+    //视频页（用户端侧边栏「视频」入口）
+    VIDEO: '/video',
     //获取当前登录用户信息
     GET_USER_INFO: '/auth/getUserInfo',
     //静态文件（头像等）访问前缀
     UPLOAD: '/upload',
+    //查询当前登录用户的资源文件（视频）分类列表
+    FILE_CATEGORY_USER: '/file/category/user',
+    //搜索资源文件（视频）分类（分页接口，支持 userId / categoryName 等条件）
+    FILE_CATEGORY_LIST: '/file/category/list',
+    //查询资源文件（视频）分类列表（不分页，用于全量删除前取全部ID）
+    FILE_CATEGORY_ALL: '/file/category/all',
+    //修改资源文件（视频）分类
+    FILE_CATEGORY_UPDATE: '/file/category',
+    //新增资源文件（视频）分类
+    FILE_CATEGORY_ADD: '/file/category',
+    //删除单个资源文件（视频）分类（后拼 /{id}）
+    FILE_CATEGORY_DELETE: '/file/category',
+    //批量删除资源文件（视频）分类（全量删除复用该接口）
+    FILE_CATEGORY_BATCH_DELETE: '/file/category/batchDelete',
+    //分页查询资源文件（视频）列表（支持 categoryId / userId 等条件）
+    FILE_RESOURCE_LIST: '/file/resource/list',
     //退出登录接口
     LOGOUT: '/auth/logout',
 }
+
+/**
+ * 侧边栏「视频」分类菜单项 index 前缀
+ * 分类项 index 形如 video-category-3，选中后内容区按 categoryId=3 加载资源
+ * 统一放在这里维护，避免 layout 与视频页两处硬编码字符串
+ */
+export const VIDEO_CATEGORY_MENU_PREFIX = 'video-category-'
+
+/** 侧边栏「全部视频」菜单项 index：选中后清掉 URL 上的分类ID，内容区展示全部资源 */
+export const VIDEO_CATEGORY_ALL_INDEX = 'video-category-all'
 
 export const routesIndexConstants = {
     //登录
