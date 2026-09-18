@@ -46,6 +46,12 @@
             <groupId>com.framework</groupId>
             <artifactId>dotm-framework-redis</artifactId>
         </dependency>
+
+        <!--数据源-->
+        <dependency>
+            <groupId>com.framework</groupId>
+            <artifactId>dotm-framework-datasource</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
