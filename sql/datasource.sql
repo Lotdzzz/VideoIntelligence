@@ -8,7 +8,7 @@ create table sys_user
     user_name       varchar(30) not null comment '用户账号',
     nick_name       varchar(30) not null comment '用户昵称',
     email           varchar(50)  default '' comment '用户邮箱',
-    avatar          varchar(100) default '' comment '头像地址',
+    avatar          varchar(255) default '' comment '头像地址（OSS 完整访问地址）',
     password        varchar(100) default '' comment '密码',
     status          char(1)      default '0' comment '账号状态（0正常 1停用）',
     del_flag        char(1)      default '0' comment '删除标志（0代表存在 2代表删除）',

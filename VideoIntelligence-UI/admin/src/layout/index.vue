@@ -42,7 +42,11 @@
       <!-- 底部用户信息 -->
       <div class="sidebar-footer">
         <div class="user-profile" @click="handleProfileClick">
-          <div class="user-avatar">{{ avatarText }}</div>
+          <!-- 真实头像：后端已接入 OSS，avatar 为完整访问地址；
+               加载失败（地址失效/被防盗链拦截）时 el-avatar 会自动降级为昵称首字 -->
+          <el-avatar class="user-avatar" :size="38" :src="avatarUrl">
+            {{ avatarText }}
+          </el-avatar>
           <div v-show="!isCollapsed" class="user-info">
             <span class="user-name">{{ userInfo?.nickName || userInfo?.userName || '管理员' }}</span>
             <span class="user-role">系统管理员</span>
@@ -85,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
@@ -101,6 +105,7 @@ import { useTokenStore } from '@/stores/token'
 import { useRoutersStore } from '@/stores/routers'
 import { useUserStore } from '@/stores/user'
 import SidebarItem from '@/components/SidebarItem.vue'
+import { resolveFileUrl } from '@/utils/file'
 import type { Result } from '@/types/result'
 import type { SysUserInfo as UserInfo } from '@/types/user/userInfo'
 
@@ -130,6 +135,10 @@ const avatarText = computed(() => {
   const name = userInfo.value?.nickName || userInfo.value?.userName || '管理员'
   return name.slice(0, 1)
 })
+
+// 真实头像地址：后端上传已接入 OSS，avatar 存的是完整访问地址，
+// 历史数据（仅存文件名）由 resolveFileUrl 兼容拼接为 /upload/xxx
+const avatarUrl = computed(() => resolveFileUrl(userInfo.value?.avatar))
 
 // ==================== 导航 ====================
 // 过滤掉 hidden 的顶级菜单
@@ -206,6 +215,16 @@ const fetchUserInfo = async () => {
     router.push(routesIndexConstants.LOGIN)
   }
 }
+
+// 个人中心保存头像后会写入全局 store，这里同步刷新侧边栏头像，避免需要刷新页面才生效
+watch(
+  () => userStore.userInfo.avatar,
+  (avatar) => {
+    if (userInfo.value) {
+      userInfo.value.avatar = avatar
+    }
+  }
+)
 
 onMounted(() => {
   fetchUserInfo()
@@ -354,15 +373,11 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.12);
 }
 
+/* 侧边栏用户头像：尺寸由 el-avatar 的 :size="38" 控制，
+   这里只覆盖配色/文字降级样式，保持与原来纯文字头像一致的观感 */
 .user-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 16px;
   font-weight: 600;
   flex-shrink: 0;

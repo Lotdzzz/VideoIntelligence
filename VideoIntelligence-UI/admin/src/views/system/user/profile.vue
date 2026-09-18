@@ -22,7 +22,12 @@
         </el-form-item>
         <el-form-item label="用户头像">
           <div class="avatar-section">
-            <el-avatar :size="80" :src="resolveFileUrl(formData.avatar)">
+            <!-- OSS 返回完整地址，直接用于预览；加载失败时 el-avatar 会自动降级为文字头像 -->
+            <el-avatar
+              :size="80"
+              :src="resolveFileUrl(formData.avatar)"
+              @error="handleAvatarError"
+            >
               {{ (formData.nickName || formData.userName || '?').slice(0, 1) }}
             </el-avatar>
             <el-upload
@@ -156,14 +161,21 @@ async function handleAvatarChange(file: UploadFile) {
   }
   uploading.value = true
   try {
-    const fileName = (await uploadFile(raw)) as unknown as string
-    formData.value.avatar = fileName
+    // 后端已接入 OSS，返回的是完整访问地址（https://<bucket>.<endpoint>/xxx.png），
+    // 直接存入 avatar，点击保存时原样提交给后端
+    const fileUrl = (await uploadFile(raw)) as unknown as string
+    formData.value.avatar = fileUrl
     ElMessage.success('头像上传成功，请点击保存')
   } catch (error: any) {
     ElMessage.error(error?.msg || '头像上传失败')
   } finally {
     uploading.value = false
   }
+}
+
+// 头像加载失败（OSS 地址失效 / 被防盗链拦截）时提示，el-avatar 会自动降级为文字头像
+function handleAvatarError() {
+  ElMessage.warning('头像图片加载失败，请重新上传')
 }
 
 async function handleSave() {
@@ -180,10 +192,13 @@ async function handleSave() {
       userId: formData.value.userId,
       nickName: formData.value.nickName,
       email: formData.value.email,
+      // OSS 完整访问地址，原样提交（后端直接落库，前端无需拼接）
       avatar: formData.value.avatar,
       password: formData.value.password,
       remark: formData.value.remark,
     })
+    // 同步全局 store，保证其他组件（如侧边栏）读到的是最新头像地址
+    userStore.setUserInfo({ avatar: formData.value.avatar ?? '' })
     ElMessage.success('保存成功')
     await loadUserInfo()
   } catch (error: any) {

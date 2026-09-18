@@ -45,7 +45,14 @@
           accept="image/*"
           :on-change="handleAvatarChange"
         >
-          <img v-if="formData.avatar" :src="resolveFileUrl(formData.avatar)" class="avatar-preview" alt="头像" />
+          <!-- 上传成功后返回 OSS 完整地址，直接用于预览；加载失败时降级为上传占位图 -->
+          <img
+            v-if="formData.avatar && !avatarLoadFailed"
+            :src="resolveFileUrl(formData.avatar)"
+            class="avatar-preview"
+            alt="头像"
+            @error="handleAvatarLoadError"
+          />
           <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
         </el-upload>
       </el-form-item>
@@ -110,10 +117,11 @@
       @size-change="handleSizeChange"
       @pagination-change="loadUserData"
     >
-      <!-- 头像列自定义渲染 -->
+      <!-- 头像列自定义渲染：OSS 返回完整地址，el-avatar 加载失败会自动降级为文字头像 -->
       <template #avatar="{ row }">
-        <img v-if="row.avatar" :src="resolveFileUrl(row.avatar)" class="table-avatar" alt="头像" />
-        <el-avatar v-else :size="40">{{ (row.nickName || row.userName || '?').slice(0, 1) }}</el-avatar>
+        <el-avatar :size="40" :src="resolveFileUrl(row.avatar)" class="table-avatar">
+          {{ (row.nickName || row.userName || '?').slice(0, 1) }}
+        </el-avatar>
       </template>
 
       <!-- 状态列自定义渲染 -->
@@ -181,6 +189,8 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const submitting = ref(false)
 const uploading = ref(false)
+// 头像加载失败标记：OSS 地址失效或被拦截时降级展示上传占位图，避免出现裂图
+const avatarLoadFailed = ref(false)
 
 // 角色选项（用于新增/修改时多选）
 const roleOptions = ref<SysRoleVO[]>([])
@@ -302,6 +312,8 @@ function handleReset() {
 
 function handleAdd() {
   formData.value = defaultFormData()
+  // 新增时无头像，重置加载失败标记
+  avatarLoadFailed.value = false
   dialogTitle.value = '新增用户'
   dialogVisible.value = true
 }
@@ -321,6 +333,8 @@ async function handleEdit(row: SysUserVO) {
       remark: detail.remark,
       roleIds: detail.roleIds ?? [],
     }
+    // 头像地址变更后重置加载失败标记，重新尝试加载
+    avatarLoadFailed.value = false
     dialogTitle.value = '修改用户'
     dialogVisible.value = true
   } catch (error: any) {
@@ -341,14 +355,23 @@ async function handleAvatarChange(uploadFileItem: UploadFile) {
   }
   uploading.value = true
   try {
-    const fileName = (await uploadFile(raw)) as unknown as string
-    formData.value.avatar = fileName
+    // 后端已接入 OSS，返回的是完整访问地址，直接存入 avatar，提交时原样传给后端
+    const fileUrl = (await uploadFile(raw)) as unknown as string
+    formData.value.avatar = fileUrl
+    // 新地址重新加载，重置失败标记
+    avatarLoadFailed.value = false
     ElMessage.success('头像上传成功')
   } catch (error: any) {
     ElMessage.error(error?.msg || '头像上传失败')
   } finally {
     uploading.value = false
   }
+}
+
+// 预览图加载失败（OSS 地址失效 / 被防盗链拦截）时降级为占位图并提示
+function handleAvatarLoadError() {
+  avatarLoadFailed.value = true
+  ElMessage.warning('头像加载失败，请重新上传')
 }
 
 async function handleSubmit() {
@@ -460,11 +483,8 @@ onMounted(() => {
   display: block;
 }
 
+/* 列表头像：el-avatar 自带圆形裁剪与尺寸（:size="40"），这里只保证单元格内垂直居中 */
 .table-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
   vertical-align: middle;
 }
 </style>
