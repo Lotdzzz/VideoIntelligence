@@ -1,7 +1,8 @@
 package com.dotm.service.impl;
 
+import com.aliyun.oss.OSS;
+import com.dotm.properties.OSSProperties;
 import com.framework.exception.upload.UploadEmptyException;
-import com.framework.exception.upload.UploadException;
 import com.framework.exception.upload.UploadNameException;
 import com.dotm.properties.UploadWhiteList;
 import com.dotm.service.UploadService;
@@ -11,11 +12,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -28,6 +27,10 @@ import java.util.UUID;
 public class UploadServiceImpl implements UploadService {
 
     private final UploadWhiteList uploadWhiteList;
+
+    private final OSS ossClient;
+
+    private final OSSProperties ossProperties;
 
     /**
      * 文件上传
@@ -56,18 +59,36 @@ public class UploadServiceImpl implements UploadService {
         //使用UUID去重文件名
         String newFileName = UUID.randomUUID().toString().replace("-", "") + "-" + original;
 
+        // 上传文件到阿里云OSS
+        return ossUpload(file, newFileName);
+    }
+
+    /**
+     * 本地上传
+     *
+     * @param filename 文件名
+     * @return 文件路径
+     * @deprecated 该方法已过期
+     */
+    @Deprecated
+    private Path localUpload(String filename) throws IOException {
         // 刷盘
-        // 这里可以添加具体的刷盘逻辑，例如将文件保存到本地或上传到云存储
         Path root = Paths.get(uploadWhiteList.getDir()).toAbsolutePath().normalize();
         Files.createDirectories(root);
-        Path path = root.resolve(newFileName).normalize();
+        return root.resolve(filename).normalize();
+    }
 
-        try (InputStream in = file.getInputStream()) {
-            Files.copy(in, path, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new UploadException(e.getMessage());
-        }
-
-        return newFileName;
+    /**
+     * 上传文件到阿里云OSS
+     *
+     * @param file     前端传来的文件
+     * @param filename 文件名
+     * @return 文件访问URL
+     */
+    private String ossUpload(MultipartFile file, String filename) throws IOException {
+        // 上传文件到阿里云OSS
+        ossClient.putObject(ossProperties.getBucketName(), filename, file.getInputStream());
+        // 返回文件访问URL
+        return "https://" + ossProperties.getBucketName() + "." + ossProperties.getEndpoint() + "/" + filename;
     }
 }
