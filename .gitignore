@@ -162,3 +162,6 @@ celerybeat.pid
 .spyderproject
 .spyproject
 .ropeproject
+
+/environment_value/linux-backup.sh
+/environment_value/windows-backup.reg

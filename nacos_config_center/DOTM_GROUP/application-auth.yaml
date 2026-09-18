@@ -1,0 +1,38 @@
+web:
+  jwt:
+    #设置jwt签名加密秘钥
+    secret-key: ${SECRET_KEY}
+    #设置过期时间 单位分钟
+    ttl: 360
+    #设置前端发送请求请求头中存储jwt的字段
+    token-name: authorization
+    #jwt生成的前缀默认的 后端解析时需要去掉
+    prefix: Bearer
+    # 设置伪造回调标志的过期时间 单位分钟
+    state-ttl: 5
+
+spring:
+  http:
+    client:
+      proxy:
+        host: 127.0.0.1
+        port: 7892
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${CLIENT_ID}
+            client-secret: ${CLIENT_SECRET}
+            scope:
+              - read:user
+              - user:email
+            authorization-grant-type: authorization_code
+            redirect-uri: http://127.0.0.1:90/oauth/callback
+            client-name: DOTM
+        provider:
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            user-name-attribute: login

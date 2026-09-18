@@ -1,0 +1,131 @@
+# 如果多个微服务连接同一个实例则放在common，否则就拆出，比如多个微服务访问不同的数据库时需要拆。
+# 被环境变量修饰的基本都是不可实时更新的
+spring:
+    # 1. Druid数据源核心配置（基础+连接池）
+    datasource:
+      type: com.alibaba.druid.pool.DruidDataSource
+      # MySQL驱动（SpringBoot3.x+MySQL8.x必用）
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      # 数据库连接地址（替换为你的库名和地址）
+      url: jdbc:mysql://${DATASOURCE_HOST_PORT}/${DATASOURCE_DATABASES}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      username: ${DATASOURCE_USERNAME}
+      password: ${DATASOURCE_PASSWORD}
+      # Druid连接池特有配置
+      druid:
+        initial-size: 5          # 初始化连接数
+        min-idle: 5              # 最小空闲连接数
+        max-active: 20           # 最大活跃连接数
+        max-wait: 60000          # 获取连接最大等待时间（ms）
+        time-between-eviction-runs-millis: 60000  # 空闲连接检测间隔
+        min-evictable-idle-time-millis: 300000    # 连接最小空闲时间（超时回收）
+        validation-query: SELECT 1 FROM DUAL      # 连接有效性检测SQL
+        test-while-idle: true                     # 空闲时检测连接
+        test-on-borrow: false                     # 获取连接时不检测（提升性能）
+        test-on-return: false                     # 归还连接时不检测
+        pool-prepared-statements: true            # 开启PSCache
+        max-pool-prepared-statement-per-connection-size: 20
+        filters: stat,wall,slf4j                  # 监控/防火墙/日志过滤器
+        # Druid监控配置（可选）
+        web-stat-filter:
+          enabled: true
+          url-pattern: /*
+          exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+        stat-view-servlet:
+          enabled: true
+          url-pattern: /druid/*
+          login-username: admin
+          login-password: admin123
+
+    # redis配置
+    data:
+      redis:
+        host: ${REDIS_HOST}
+        port: ${REDIS_PORT:6379}
+        password: ${REDIS_PASSWORD}
+        database: 0
+        timeout: 5000ms
+        lettuce:
+          pool:
+            max-active: 8
+            max-idle: 8
+            min-idle: 0
+            max-wait: -1ms
+            time-between-eviction-runs: 30000ms
+
+    rabbitmq:
+      host: ${RABBITMQ_SERVER_HOST}
+      port: ${RABBITMQ_SERVER_PORT:5672}
+      username: ${RABBITMQ_SERVER_USERNAME}
+      password: ${RABBITMQ_SERVER_PASSWORD}
+      virtual-host: /
+
+      # ========== 超时与心跳 ==========
+      connection-timeout: 30s          # 对应 setConnectionTimeout(30000)
+      requested-heartbeat: 60s         # 对应 setRequestedHeartbeat(60)
+
+      # ========== 连接工厂缓存设置 ==========
+      cache:
+        channel:
+          size: 50                      # 对应 setChannelCacheSize(50)
+          checkout-timeout: 10s         # 对应 setChannelCheckoutTimeout(10000)
+
+      # ========== 发布确认与返回 ==========
+      publisher-confirm-type: correlated  # 对应 setPublisherConfirmType(CORRELATED)
+      publisher-returns: true             # 对应 setPublisherReturns(true)
+
+      # ========== RabbitTemplate 发送端模板配置 ==========
+      template:
+        # 1. 强制消息路由（对应 setMandatory(true)）
+        mandatory: true
+
+        # 3. 发送重试机制
+        retry:
+          enabled: true               # 开启重试
+          initial-interval: 1s        # 对应 setInitialInterval(1000)
+          multiplier: 2.0             # 对应 setMultiplier(2.0)
+          max-interval: 10s           # 对应 setMaxInterval(10000)
+
+      # ========== 消费者监听器容器工厂配置 ==========
+      listener:
+        simple:
+          # 1. 并发消费者数量
+          concurrency: 5                # 对应 setConcurrentConsumers(5)
+          max-concurrency: 20           # 对应 setMaxConcurrentConsumers(20)
+
+          # 2. 预取数量
+          prefetch: 1                  # 对应 setPrefetchCount(1)
+
+          # 3. 确认模式（手动确认）
+          acknowledge-mode: manual      # 对应 setAcknowledgeMode(MANUAL)
+
+          # 4. 重试机制（替代手写的 RetryTemplate）
+          retry:
+            enabled: true
+            initial-interval: 1000      # 若需要退避策略，可追加以下 3 项
+            multiplier: 2.0
+            max-interval: 10000
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  # 1. 全局配置
+  global-config:
+    db-config:
+      # 主键类型: AUTO(数据库ID自增), NONE(未设置), INPUT(手动输入), ASSIGN_ID(雪花算法), ASSIGN_UUID(UUID)
+      id-type: auto
+      # 逻辑删除配置（新版本推荐使用）
+      logic-delete-field: deleted  # 逻辑删除字段名
+      logic-delete-value: 1        # 逻辑已删除值
+      logic-not-delete-value: 0    # 逻辑未删除值
+      # 表名、字段名策略（可选）
+      table-underline: true        # 开启下划线转驼峰
+    banner: false  # 关闭 MP 启动 banner
+
+  # 2. 配置设置
+  configuration:
+    map-underscore-to-camel-case: true  # 自动将下划线映射到驼峰
+    auto-mapping-behavior: full         # 自动映射策略
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 控制台打印SQL
+
+  # 4. 其他配置
+  mapper-locations: classpath*:mapper/**/*.xml  # XML 映射文件位置
+  type-aliases-package: com.**.entity  # 实体类包路径

@@ -1,0 +1,12 @@
+spring:
+  ai:
+    openai:
+      #api-key: sk-ws-H.PDRYLMP.aTsZ.MEUCIHSVkt2SjMRPs4Uxz_S3MrpEEBMHBuB0WJ8IbhHgMUEiAiEA4VTFUOqRCb6G-aU0G3vqSwKa_kds26BmaHQcJ00a_pA
+      #base-url: https://ws-d6bvfj3b8mxhu26o.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
+      chat:
+        options:
+          model: deepseek-flash
+          timeout: 3000s
+      timeout: 3000s
+      api-key: ${API_KEY}
+      base-url: https://api.deepseek.com

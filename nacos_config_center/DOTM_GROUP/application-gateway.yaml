@@ -1,0 +1,8 @@
+gateway:
+  ignore:
+    urls:
+      - /auth/login
+      - /auth/register
+      - /public/
+      - /upload/
+      - /auth/oauth/
