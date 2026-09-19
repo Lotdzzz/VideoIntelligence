@@ -2,6 +2,7 @@ package com.dotm.service.impl;
 
 import com.aliyun.oss.OSS;
 import com.dotm.properties.OSSProperties;
+import com.dotm.utils.FileWhiteFilterUtil;
 import com.framework.exception.upload.UploadEmptyException;
 import com.framework.exception.upload.UploadNameException;
 import com.dotm.properties.UploadWhiteList;
@@ -54,6 +55,11 @@ public class UploadServiceImpl implements UploadService {
                 Objects.requireNonNullElse(file.getOriginalFilename(), ""));
         if (original.isBlank() || original.contains("..")) {
             throw new UploadNameException(null);
+        }
+
+        //白名单过滤
+        if (FileWhiteFilterUtil.filter(uploadWhiteList.getList(), original)) {
+            throw new UploadNameException(original);
         }
 
         //使用UUID去重文件名
