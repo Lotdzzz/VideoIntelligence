@@ -58,7 +58,7 @@ public class UploadServiceImpl implements UploadService {
         }
 
         //白名单过滤
-        if (FileWhiteFilterUtil.filter(uploadWhiteList.getList(), original)) {
+        if (!FileWhiteFilterUtil.filter(uploadWhiteList.getList(), original)) {
             throw new UploadNameException(original);
         }
 

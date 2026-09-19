@@ -1,4 +1,4 @@
-package com.vi.controller;
+package com.vi.controller.admin;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.framework.model.Result;
@@ -7,6 +7,7 @@ import com.vi.entity.dto.ViFileDTO;
 import com.vi.entity.vo.ViFileVO;
 import com.vi.service.ViFileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
  * @author dotm
  * VI资源文件管理接口
  */
-@RequestMapping("/file/resource")
+@RequestMapping("/file/admin/resource")
 @RestController
 @RequiredArgsConstructor
 public class ViFileController {
@@ -31,6 +32,7 @@ public class ViFileController {
      * @return 分页结果
      */
     @GetMapping("/list")
+    @PreAuthorize("hasAuthority('file:resource:list')")
     public Result<IPage<ViFileVO>> list(@RequestParam(
                                                 name = FileConstants.PAGE_NUM,
                                                 defaultValue = FileConstants.DEFAULT_PAGE_NUM)
@@ -52,6 +54,7 @@ public class ViFileController {
      * @param id 文件ID
      * @return 文件信息
      */
+    @PreAuthorize("hasAuthority('file:resource:getById')")
     @GetMapping("/{id}")
     public Result<ViFileVO> getById(@PathVariable Long id) {
         //根据文件ID查询文件信息
@@ -65,6 +68,7 @@ public class ViFileController {
      * @param dto 入参
      * @return 操作结果
      */
+    @PreAuthorize("hasAuthority('file:resource:add')")
     @PostMapping
     public Result<Void> add(@RequestBody ViFileDTO dto) {
         //新增资源文件
@@ -78,6 +82,7 @@ public class ViFileController {
      * @param dto 入参
      * @return 操作结果
      */
+    @PreAuthorize("hasAuthority('file:resource:update')")
     @PutMapping
     public Result<Void> update(@RequestBody ViFileDTO dto) {
         //修改资源文件
@@ -91,6 +96,7 @@ public class ViFileController {
      * @param id 文件ID
      * @return 操作结果
      */
+    @PreAuthorize("hasAuthority('file:resource:delete')")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         //根据文件ID删除文件
@@ -104,6 +110,7 @@ public class ViFileController {
      * @param ids 文件ID集合
      * @return 操作结果
      */
+    @PreAuthorize("hasAuthority('file:resource:batchDelete')")
     @DeleteMapping("/batchDelete")
     public Result<Void> batchDelete(@RequestBody List<Long> ids) {
         //根据文件ID集合批量删除文件

@@ -1,3 +1,4 @@
 com.framework.config.RedisConfig
 com.framework.config.RedisAutoConfiguration
 com.framework.service.impl.RedisCacheServiceImpl
+com.framework.service.impl.RedisCacheForHashServiceImpl

@@ -8,21 +8,25 @@ export const routesConstants = {
     //静态文件（头像等）访问前缀
     UPLOAD: '/upload',
     //查询当前登录用户的资源文件（视频）分类列表
-    FILE_CATEGORY_USER: '/file/category/user',
+    FILE_CATEGORY_USER: '/file/user/category/user',
     //搜索资源文件（视频）分类（分页接口，支持 userId / categoryName 等条件）
-    FILE_CATEGORY_LIST: '/file/category/list',
+    FILE_CATEGORY_LIST: '/file/user/category/list',
     //查询资源文件（视频）分类列表（不分页，用于全量删除前取全部ID）
-    FILE_CATEGORY_ALL: '/file/category/all',
+    FILE_CATEGORY_ALL: '/file/user/category/all',
     //修改资源文件（视频）分类
-    FILE_CATEGORY_UPDATE: '/file/category',
+    FILE_CATEGORY_UPDATE: '/file/user/category',
     //新增资源文件（视频）分类
-    FILE_CATEGORY_ADD: '/file/category',
+    FILE_CATEGORY_ADD: '/file/user/category',
     //删除单个资源文件（视频）分类（后拼 /{id}）
-    FILE_CATEGORY_DELETE: '/file/category',
+    FILE_CATEGORY_DELETE: '/file/user/category',
     //批量删除资源文件（视频）分类（全量删除复用该接口）
-    FILE_CATEGORY_BATCH_DELETE: '/file/category/batchDelete',
-    //分页查询资源文件（视频）列表（支持 categoryId / userId 等条件）
-    FILE_RESOURCE_LIST: '/file/resource/list',
+    FILE_CATEGORY_BATCH_DELETE: '/file/user/category/batchDelete',
+    //分页查询资源文件（视频）列表（支持 categoryId / userId / originalName / status / 创建时间范围等条件）
+    FILE_RESOURCE_LIST: '/file/user/resource/list',
+    //删除单个资源文件（视频）（后拼 /{id}）
+    FILE_RESOURCE_DELETE: '/file/user/resource',
+    //批量删除资源文件（视频）（body 为 ID 集合）
+    FILE_RESOURCE_BATCH_DELETE: '/file/user/resource/batchDelete',
     //退出登录接口
     LOGOUT: '/auth/logout',
 }

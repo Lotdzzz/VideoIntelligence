@@ -129,63 +129,20 @@ public interface RedisCacheService {
     <T> Set<T> getCacheSet(String key);
 
     /**
-     * 缓存 Map。
-     *
-     * @param key     缓存键值
-     * @param dataMap 缓存数据
-     */
-    <T> void setCacheMap(String key, Map<String, T> dataMap);
-
-    /**
-     * 获得缓存的 Map。
-     *
-     * @param key 缓存键值
-     * @return 缓存数据
-     */
-    <T> Map<String, T> getCacheMap(String key);
-
-    /**
-     * 往 Hash 中存入数据。
-     *
-     * @param key   Redis键
-     * @param hKey  Hash键
-     * @param value 值
-     */
-    <T> void setCacheMapValue(String key, String hKey, T value);
-
-    /**
-     * 获取 Hash 中的数据。
-     *
-     * @param key  Redis键
-     * @param hKey Hash键
-     * @return Hash中的对象
-     */
-    <T> T getCacheMapValue(String key, String hKey);
-
-    /**
-     * 获取多个 Hash 中的数据。
-     *
-     * @param key   Redis键
-     * @param hKeys Hash键集合
-     * @return Hash对象集合
-     */
-    <T> List<T> getMultiCacheMapValue(String key, Collection<Object> hKeys);
-
-    /**
-     * 删除 Hash 中的某条数据。
-     *
-     * @param key  Redis键
-     * @param hKey Hash键
-     * @return 是否成功
-     */
-    boolean deleteCacheMapValue(String key, String hKey);
-
-    /**
      * 获得匹配指定模式的 Redis Key 集合。
      *
      * @param pattern 字符串前缀
      * @return Key 集合
      */
     Collection<String> keys(String pattern);
+
+    /**
+     * 批量获取缓存的基本对象
+     *
+     * @param keys 缓存键集合
+     * @param <T>  缓存值类型
+     * @return 缓存数据集合 (注意：如果某个key不存在，对应位置会返回null)
+     */
+    public <T> List<T> multiGetCacheObject(final Collection<String> keys);
 }
 

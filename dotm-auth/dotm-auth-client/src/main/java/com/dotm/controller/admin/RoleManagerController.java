@@ -1,4 +1,4 @@
-package com.dotm.controller;
+package com.dotm.controller.admin;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.dotm.constants.UserConstants;

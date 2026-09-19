@@ -1,7 +1,6 @@
 package com.framework.handler;
 
 import com.framework.model.Result;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -29,7 +28,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(@NonNull HttpServletRequest request,
                        @NonNull HttpServletResponse response,
-                       @NonNull AccessDeniedException accessDeniedException) throws IOException, ServletException {
+                       @NonNull AccessDeniedException accessDeniedException) throws IOException {
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");

@@ -12,4 +12,12 @@ public class RedisSerializerConstants {
     public static final String TRUSTED_PACKAGE_PREFIX = "com";
 
     public static final String CACHE_VALID_TIME = "${spring.cache.redis.time-to-live:30m}";
+
+    /**
+     * 设置redis的Bean名称
+     */
+    public static final String OBJECT_REDIS_TEMPLATE_BEAN_NAME = "redisTemplateCache";
+
+    /** ⭐ 新增：Hash Value 使用字符串序列化，专供 HINCRBY/计数场景 */
+    public static final String STRING_HASH_REDIS_TEMPLATE_BEAN_NAME = "stringHashRedisTemplate";
 }

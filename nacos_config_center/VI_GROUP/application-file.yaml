@@ -1,6 +1,6 @@
 minio:
   endpoint: http://192.168.99.128:9000  # MinIO 服务地址
   access-key: ${MINIO_ACCESS_KEY}      # Access Key
-  secret-key: ${SLgtdj7DwEdbSkulXPCYk7FRW6pkKU8iSqkznuXD}      # Secret Key
+  secret-key: ${MINIO_SECRET_KEY}      # Secret Key
   bucket-name: video-upload    # 默认使用的存储桶名称
   expiry-time: 5 # 用于获取预签名url的持续时间 单元为分钟

@@ -1,4 +1,4 @@
-package com.dotm.controller;
+package com.dotm.controller.admin;
 
 import com.framework.constants.AIConstants;
 import com.framework.entity.vo.AiPromptVO;

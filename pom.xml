@@ -38,6 +38,7 @@
         <spring-ai.version>2.0.1</spring-ai.version>
         <minio.version>8.6.0</minio.version>
         <oss.version>3.18.5</oss.version>
+        <s3.version>2.36.2</s3.version>
     </properties>
 
     <dependencyManagement>
@@ -54,6 +55,13 @@
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
                 <version>${minio.version}</version>
+            </dependency>
+
+            <!--s3协议 文件上传-->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${s3.version}</version>
             </dependency>
 
             <!--monitor-->

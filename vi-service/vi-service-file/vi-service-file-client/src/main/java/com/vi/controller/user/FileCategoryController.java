@@ -1,4 +1,4 @@
-package com.vi.controller;
+package com.vi.controller.user;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.framework.model.Result;
@@ -13,13 +13,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
+ * 用户端分类接口
+ *
  * @author dotm
- * VI资源文件分类管理接口
  */
-@RequestMapping("/file/category")
 @RestController
+@RequestMapping("/file/user/category")
 @RequiredArgsConstructor
-public class ViFileCategoryController {
+public class FileCategoryController {
 
     private final ViFileCategoryService viFileCategoryService;
 
@@ -41,6 +42,9 @@ public class ViFileCategoryController {
                                                         defaultValue = FileConstants.DEFAULT_PAGE_SIZE)
                                                 Integer pageSize,
                                                 ViFileCategoryDTO viFileCategoryDTO) {
+        //设置用户id
+        viFileCategoryDTO.setUserId(SecurityUtils.getUserId());
+
         //调用 Service 层分页查询资源文件分类
         IPage<ViFileCategoryVO> categoryPage = viFileCategoryService.pageCategories(viFileCategoryDTO, pageNum, pageSize);
         //返回分页结果
@@ -55,6 +59,7 @@ public class ViFileCategoryController {
      */
     @GetMapping("/all")
     public Result<List<ViFileCategoryVO>> listAll(ViFileCategoryDTO viFileCategoryDTO) {
+        viFileCategoryDTO.setUserId(SecurityUtils.getUserId());
         //查询资源文件分类列表
         List<ViFileCategoryVO> categoryList = viFileCategoryService.listCategories(viFileCategoryDTO);
         return Result.success(categoryList);
@@ -127,6 +132,8 @@ public class ViFileCategoryController {
 
     /**
      * 根据用户id查询分类
+     *
+     * @return 分类列表
      */
     @GetMapping("/user")
     public Result<List<ViFileCategoryVO>> listByUserId() {

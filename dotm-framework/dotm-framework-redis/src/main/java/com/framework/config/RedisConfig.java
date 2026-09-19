@@ -59,7 +59,7 @@ public class RedisConfig {
      * <p>例如操作普通 Value、Hash、List、Set 和 ZSet。</p>
      */
     @Bean
-    @ConditionalOnMissingBean(name = "redisTemplateCache")
+    @ConditionalOnMissingBean(name = RedisSerializerConstants.OBJECT_REDIS_TEMPLATE_BEAN_NAME)
     public RedisTemplate<String, Object> redisTemplateCache(
             RedisConnectionFactory connectionFactory,
             RedisSerializer<Object> redisValueSerializer) {
@@ -83,6 +83,49 @@ public class RedisConfig {
         template.setDefaultSerializer(redisValueSerializer);
 
         // 完成 RedisTemplate 的属性检查和内部组件初始化。
+        template.afterPropertiesSet();
+        return template;
+    }
+
+    /**
+     * 计数专用 Redis 模板。
+     *
+     * <p>Hash Key 与 Hash Value 都使用字符串序列化，
+     * 使 Hash 字段在 Redis 中保存为纯字符串整数，
+     * 从而可以正常使用 {@code HINCRBY} 等 Redis 原生命令。</p>
+     *
+     * <p>普通 Value 仍使用 JSON 序列化，方便存储对象。</p>
+     *
+     * <p>业务中凡是需要做「Hash 字段原子自增」的地方，
+     * 都应显式注入该模板，而不是默认的 {@link #redisTemplateCache}。</p>
+     */
+    @Bean
+    @ConditionalOnMissingBean(name = RedisSerializerConstants.STRING_HASH_REDIS_TEMPLATE_BEAN_NAME)
+    public RedisTemplate<String, Object> stringHashRedisTemplate(
+            RedisConnectionFactory connectionFactory,
+            RedisSerializer<Object> redisValueSerializer) {
+
+        // Key / Hash Key 使用字符串，方便在客户端查看和检索。
+        StringRedisSerializer stringSerializer = new StringRedisSerializer();
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+
+        // 连接工厂由 Spring Boot 自动装配。
+        template.setConnectionFactory(connectionFactory);
+
+        // 普通 Key 与 Hash Key 都为可读字符串。
+        template.setKeySerializer(stringSerializer);
+        template.setHashKeySerializer(stringSerializer);
+
+        // 普通 Value 仍为 JSON，可存对象。
+        template.setValueSerializer(redisValueSerializer);
+
+        // ⭐ 关键差异：Hash Value 使用字符串序列化，
+        // 使得 HINCRBY 等命令可以作用于 Hash 字段。
+        template.setHashValueSerializer(stringSerializer);
+
+        // 未显式指定序列化器的数据类型，走 JSON 默认值。
+        template.setDefaultSerializer(redisValueSerializer);
+
         template.afterPropertiesSet();
         return template;
     }

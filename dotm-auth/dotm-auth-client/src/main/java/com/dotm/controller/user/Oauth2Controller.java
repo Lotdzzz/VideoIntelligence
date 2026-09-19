@@ -1,4 +1,4 @@
-package com.dotm.controller;
+package com.dotm.controller.user;
 
 import com.dotm.entity.dto.oauth.GithubOAuthCodeDTO;
 import com.dotm.entity.vo.GithubCallBackVO;

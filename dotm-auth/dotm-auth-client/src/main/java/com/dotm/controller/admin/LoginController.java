@@ -1,4 +1,4 @@
-package com.dotm.controller;
+package com.dotm.controller.admin;
 
 import com.dotm.annotation.AuthLog;
 import com.dotm.annotation.RecordUserInfo;
