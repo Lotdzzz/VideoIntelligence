@@ -4,6 +4,7 @@ import com.framework.exception.upload.UploadPreSignException;
 import com.vi.entity.dto.ViFileDTO;
 import com.vi.entity.vo.VideoReturnInfoVO;
 import com.vi.entity.vo.VideoSliceMissionVo;
+import com.vi.service.MinioService;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.errors.*;
@@ -33,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @RequiredArgsConstructor
-public class MinioService {
+public class MinioServiceImpl implements MinioService {
 
     private final MinioClient minioClient;
 

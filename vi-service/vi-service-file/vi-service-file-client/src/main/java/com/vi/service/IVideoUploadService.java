@@ -19,13 +19,6 @@ public interface IVideoUploadService {
     VideoSliceMissionVo receiveVideoInfo(ViFileDTO videoUploadDTO);
 
     /**
-     * 预检查视频信息
-     *
-     * @param videoUploadDTO 视频信息
-     */
-    String preCheckVideoInfo(ViFileDTO videoUploadDTO);
-
-    /**
      * 上传视频分片
      *
      * @param partUploadCompleteDTO 分片上传完成信息
