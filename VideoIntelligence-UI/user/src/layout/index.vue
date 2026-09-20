@@ -872,6 +872,11 @@ onMounted(async () => {
   await fetchLoginUser()
   ensureCategoriesForActiveCategory()
 })
+// 这个方法是点击获取该分类的资源然后在右侧内容区展示
+function showVideoContent(categoryId: number) {
+  // 跳转页面并转发categoryId参数
+  router.push({ path: routesConstants.VIDEO, query: { categoryId: String(categoryId) } })
+}
 </script>
 
 <template>
@@ -910,7 +915,7 @@ onMounted(async () => {
                 <path d="M3 6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2.2l4.55-2.28A1 1 0 0 1 21 6.82v10.36a1 1 0 0 1-1.45.9L15 15.8V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z"/>
               </svg>
             </el-icon>
-            <span>视频</span>
+            <span>视频资源分析</span>
           </template>
 
           <!--
@@ -1037,7 +1042,7 @@ onMounted(async () => {
                 <path d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z"/>
               </svg>
             </el-icon>
-            <template #title>全部视频</template>
+            <template #title>全部资源</template>
           </el-menu-item>
 
           <!--
@@ -1049,6 +1054,7 @@ onMounted(async () => {
             :key="category.id"
             :index="`video-category-${category.id}`"
             class="category-item"
+            @click="showVideoContent(category.id)"
           >
             <!-- 多选模式：复选框（@click.stop 阻止冒泡到菜单项触发选中） -->
             <el-checkbox
@@ -1222,6 +1228,7 @@ onMounted(async () => {
         </el-breadcrumb>
       </div>
 
+<!--      右侧内容区-->
       <main class="main-content">
         <router-view />
       </main>
