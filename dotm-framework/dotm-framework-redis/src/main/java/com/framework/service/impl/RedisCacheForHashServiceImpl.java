@@ -123,7 +123,7 @@ public class RedisCacheForHashServiceImpl implements RedisCacheForHashService {
      * @param delta 增加的值
      */
     @Override
-    public void incrementCacheMapValue(String key, String hKey, int delta) {
-        redisTemplate.opsForHash().increment(key, hKey, delta);
+    public Long incrementCacheMapValue(String key, String hKey, int delta) {
+        return redisTemplate.opsForHash().increment(key, hKey, delta);
     }
 }

@@ -85,6 +85,8 @@ public class ExceptionConstants {
 
     public static final String FILE_PRE_SIGN_ERROR = "文件上传预签名异常";
 
+    public static final String FILE_PART_COMPLETE_FAILED = "文件分片上传完成失败";
+
     /**
      * xss攻击异常
      */

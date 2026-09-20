@@ -45,40 +45,4 @@ public class VideoDetailsInfoDTO implements Serializable {
      */
     @Size(max = 20)
     private String fileExt;
-
-    /**
-     * 文件摘要（MD5/SHA256），用于秒传与断点续传
-     */
-    @Size(max = 128)
-    private String fileHash;
-
-    /**
-     * 业务类型：video / avatar / attachment
-     */
-    @NotBlank(message = "业务类型不能为空")
-    private String bizType;
-
-    /**
-     * 业务 ID
-     */
-    @Size(max = 64)
-    private String bizId;
-
-    /**
-     * 视频时长（秒）
-     */
-    @Min(0)
-    private Integer duration;
-
-    /**
-     * 视频宽
-     */
-    @Min(0)
-    private Integer width;
-
-    /**
-     * 视频高
-     */
-    @Min(0)
-    private Integer height;
 }

@@ -1,7 +1,6 @@
 package com.vi.entity.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vi.status.UploadStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -76,4 +75,28 @@ public class VideoUploadProgress implements Serializable {
 
     @JsonIgnore
     public static final String UPLOAD_ID_KEY = "uploadId";
+
+    /**
+     * 文件封面
+     */
+    public String cover;
+
+    @JsonIgnore
+    public static final String COVER_KEY = "cover";
+
+    /**
+     * 原文件名
+     */
+    private String originalName;
+
+    @JsonIgnore
+    public static final String ORIGINAL_NAME_KEY = "originalName";
+
+    /**
+     * 分类id
+     */
+    private String categoryId;
+
+    @JsonIgnore
+    public static final String CATEGORY_ID_KEY = "categoryId";
 }

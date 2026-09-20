@@ -1,10 +1,14 @@
 package com.vi.service.impl;
 
 import com.framework.exception.upload.UploadPreSignException;
+import com.vi.entity.dto.ViFileDTO;
+import com.vi.entity.vo.VideoReturnInfoVO;
+import com.vi.entity.vo.VideoSliceMissionVo;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.errors.*;
 import io.minio.http.Method;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,6 +22,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +44,7 @@ public class MinioService {
     @Value("${minio.expiry-time:30}") // 默认过期时间为3600秒（1小时）
     private Integer expiryTime;
 
+    @Getter
     @Value("${minio.bucket-name}") // 获取MinIO桶名称
     private String bucketName;
 
@@ -97,6 +103,34 @@ public class MinioService {
                 .bucket(bucketName)
                 .key(objectName)
                 .build()).uploadId();
+    }
+
+    /**
+     * 根据分片数生成预签名url
+     *
+     * @return 预签名url列表
+     */
+    public VideoSliceMissionVo generatePresignedUrls(ViFileDTO videoDetailsInfoDTO) {
+        // 创建结果集
+        List<VideoReturnInfoVO> result = new ArrayList<>();
+        String filename = videoDetailsInfoDTO.getObjectName();
+        String uploadId = videoDetailsInfoDTO.getUploadId();
+
+        // 生成每个分片的预签名url
+        for (int i = 1; i <= videoDetailsInfoDTO.getChunkCount(); i++) {
+            VideoReturnInfoVO videoReturnInfoVO = new VideoReturnInfoVO();
+            videoReturnInfoVO.setPartNumber((long) i);
+            videoReturnInfoVO.setPreSignedUrl(s3ProtocolGeneratePartUrl(filename, uploadId, i));
+            videoReturnInfoVO.setFilename(filename);
+            result.add(videoReturnInfoVO);
+        }
+
+        VideoSliceMissionVo videoSliceMissionVo = new VideoSliceMissionVo();
+        videoSliceMissionVo.setVideoReturnInfoVOList(result);
+        videoSliceMissionVo.setUploadId(uploadId);
+        videoSliceMissionVo.setPartSize(videoDetailsInfoDTO.getChunkSize());
+        videoSliceMissionVo.setTotalParts(videoDetailsInfoDTO.getChunkCount().intValue());
+        return videoSliceMissionVo;
     }
 
     /**

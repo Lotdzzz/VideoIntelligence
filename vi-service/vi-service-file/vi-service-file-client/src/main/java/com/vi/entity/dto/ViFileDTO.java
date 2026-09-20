@@ -77,6 +77,21 @@ public class ViFileDTO {
     private String md5;
 
     /**
+     * uploadId，用于分片上传的唯一标识
+     */
+    private String uploadId;
+
+    /**
+     * 分片总数
+     */
+    private Long chunkCount;
+
+    /**
+     * 分片大小
+     */
+    private Long chunkSize;
+
+    /**
      * 上传完成时间
      */
     private LocalDateTime uploadTime;

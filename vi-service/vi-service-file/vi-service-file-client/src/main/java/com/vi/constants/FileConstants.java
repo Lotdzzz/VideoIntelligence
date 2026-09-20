@@ -1,5 +1,7 @@
 package com.vi.constants;
 
+import com.vi.status.UploadStatus;
+
 /**
  * @author dotm
  * VI资源文件模块常量信息
@@ -38,4 +40,18 @@ public class FileConstants {
      * 存储分片标识的存储时间
      */
     public static final Integer VIDEO_SLICE_REDIS_EXPIRE_SECONDS = 24;
+
+    /**
+     * 标识文件上传进度
+     * 文件状态：0上传中 1已上传 2处理中 3处理完成 4上传失败 5已删除
+     */
+    public static Integer getUploadStatus(UploadStatus status) {
+        return switch (status) {
+            case PENDING -> 0;
+            case UPLOADING -> 1;
+            case SUCCESS -> 2;
+            case FAILED -> 3;
+            default -> throw new IllegalArgumentException("Unknown status: " + status);
+        };
+    }
 }

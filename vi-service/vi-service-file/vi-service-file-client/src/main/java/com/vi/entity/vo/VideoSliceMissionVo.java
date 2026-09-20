@@ -23,4 +23,14 @@ public class VideoSliceMissionVo {
      * 也是合并时要用到的
      */
     private String uploadId;
+
+    /**
+     * 分片大小
+     */
+    private Long partSize;
+
+    /**
+     * 总分片数
+     */
+    private Integer totalParts;
 }

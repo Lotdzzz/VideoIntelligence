@@ -78,5 +78,5 @@ public interface RedisCacheForHashService {
      * @param hKey  Hash键
      * @param delta 增加的值
      */
-    void incrementCacheMapValue(String key, String hKey, int delta);
+    Long incrementCacheMapValue(String key, String hKey, int delta);
 }

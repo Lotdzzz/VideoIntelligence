@@ -4,3 +4,22 @@ minio:
   secret-key: ${MINIO_SECRET_KEY}      # Secret Key
   bucket-name: video-upload    # 默认使用的存储桶名称
   expiry-time: 5 # 用于获取预签名url的持续时间 单元为分钟
+# 文件上传白名单
+upload:
+  white:
+    list:
+      - mp4
+      - mov
+      - avi
+      - mkv
+      - webm
+      - flv
+      - wmv
+      - m4v
+      - mpeg
+      - mpg
+      - 3gp
+      - 3g2
+      - ts
+      - m2ts
+      - ogv

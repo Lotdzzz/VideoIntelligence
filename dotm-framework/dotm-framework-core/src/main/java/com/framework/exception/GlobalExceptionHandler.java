@@ -2,6 +2,7 @@ package com.framework.exception;
 
 import com.framework.constants.FilterOrderConstants;
 import com.framework.exception.login.LoginException;
+import com.framework.exception.upload.UploadException;
 import com.framework.exception.user.UserException;
 import com.framework.model.Result;
 import com.framework.utils.StringUtils;
@@ -56,6 +57,16 @@ public class GlobalExceptionHandler {
     public Result<Object> xssAttackException(XssAttackException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生XSS攻击.", requestURI, e);
+        return Result.error(e.getMessage());
+    }
+
+    /**
+     * 文件上传异常
+     */
+    @ExceptionHandler(UploadException.class)
+    public Result<Object> fileUploadException(UploadException e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',发生文件上传异常.", requestURI, e);
         return Result.error(e.getMessage());
     }
 }
