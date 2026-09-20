@@ -12,6 +12,12 @@
     <artifactId>vi-service-file-client</artifactId>
 
     <dependencies>
+        <!--阿里云oss-->
+        <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+        </dependency>
+
         <!--参数验证依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -63,6 +69,10 @@
         <dependency>
             <groupId>com.framework</groupId>
             <artifactId>dotm-framework-datasource</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
     </dependencies>
 

@@ -16,7 +16,12 @@ import java.util.List;
 public class UploadWhiteList {
 
     /**
-     * 白名单列表
+     * 视频白名单列表
      */
-    private List<String> list;
+    private List<String> videoList;
+
+    /**
+     * 图片白名单列表
+     */
+    private List<String> imageList;
 }

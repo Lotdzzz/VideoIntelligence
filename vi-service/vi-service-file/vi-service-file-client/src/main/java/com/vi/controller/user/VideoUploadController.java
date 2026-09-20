@@ -8,6 +8,9 @@ import com.vi.service.IVideoUploadService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 /**
  * 文件上传接口
@@ -28,6 +31,17 @@ public class VideoUploadController {
     public Result<VideoSliceMissionVo> getSliceInfo(@Valid @RequestBody ViFileDTO videoUploadDTO) {
         VideoSliceMissionVo result = videoUploadService.receiveVideoInfo(videoUploadDTO);
         return Result.success(result);
+    }
+
+    /**
+     * 保存视频封面
+     *
+     * @return 封面url
+     */
+    @PostMapping("/cover/save")
+    public Result<String> saveVideoCover(@RequestParam("file") MultipartFile file) throws IOException {
+        String url = videoUploadService.saveVideoCover(file);
+        return Result.success(url);
     }
 
     /**

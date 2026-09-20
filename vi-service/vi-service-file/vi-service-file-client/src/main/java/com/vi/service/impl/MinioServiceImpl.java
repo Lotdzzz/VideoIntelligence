@@ -1,9 +1,11 @@
 package com.vi.service.impl;
 
 import com.framework.exception.upload.UploadPreSignException;
+import com.framework.exception.upload.UploadPutException;
 import com.vi.entity.dto.ViFileDTO;
 import com.vi.entity.vo.VideoReturnInfoVO;
 import com.vi.entity.vo.VideoSliceMissionVo;
+import com.vi.properties.MinioProperties;
 import com.vi.service.MinioService;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
@@ -11,8 +13,8 @@ import io.minio.errors.*;
 import io.minio.http.Method;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -42,12 +44,7 @@ public class MinioServiceImpl implements MinioService {
 
     private final S3Presigner s3Presigner;
 
-    @Value("${minio.expiry-time:30}") // 默认过期时间为3600秒（1小时）
-    private Integer expiryTime;
-
-    @Getter
-    @Value("${minio.bucket-name}") // 获取MinIO桶名称
-    private String bucketName;
+    private final MinioProperties minioProperties;
 
     /**
      * 上传文件预签名方法
@@ -59,8 +56,8 @@ public class MinioServiceImpl implements MinioService {
             return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.PUT)
-                            .expiry(expiryTime, TimeUnit.MINUTES)
-                            .bucket(bucketName)
+                            .expiry(minioProperties.getExpiryTime(), TimeUnit.MINUTES)
+                            .bucket(minioProperties.getVideoUploadBucketName())
                             .object(objectName)
                             .build()
             );
@@ -81,8 +78,8 @@ public class MinioServiceImpl implements MinioService {
             return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
-                            .expiry(expiryTime, TimeUnit.MINUTES)
-                            .bucket(bucketName)
+                            .expiry(minioProperties.getExpiryTime(), TimeUnit.MINUTES)
+                            .bucket(minioProperties.getVideoUploadBucketName())
                             .object(objectName)
                             .build()
             );
@@ -101,7 +98,7 @@ public class MinioServiceImpl implements MinioService {
      */
     public String initiateMultipartUpload(String objectName) {
         return s3Client.createMultipartUpload(CreateMultipartUploadRequest.builder()
-                .bucket(bucketName)
+                .bucket(minioProperties.getVideoUploadBucketName())
                 .key(objectName)
                 .build()).uploadId();
     }
@@ -145,7 +142,7 @@ public class MinioServiceImpl implements MinioService {
     public String s3ProtocolGeneratePartUrl(String objectName, String uploadId, int partNumber) {
         UploadPartRequest uploadPartRequest =
                 UploadPartRequest.builder()
-                        .bucket(bucketName)
+                        .bucket(minioProperties.getVideoUploadBucketName())
                         .key(objectName)
                         .uploadId(uploadId)
                         .partNumber(partNumber)
@@ -176,12 +173,39 @@ public class MinioServiceImpl implements MinioService {
 
         CompleteMultipartUploadRequest request =
                 CompleteMultipartUploadRequest.builder()
-                        .bucket(bucketName)
+                        .bucket(minioProperties.getVideoUploadBucketName())
                         .key(objectName)
                         .uploadId(uploadId)
                         .multipartUpload(completed)
                         .build();
 
         s3Client.completeMultipartUpload(request);
+    }
+
+    /**
+     * 上传图片文件到MinIO
+     *
+     * @param newFileName 新文件名
+     * @param file        上传的图片文件
+     * @return 图片在MinIO中的访问URL
+     */
+    @Override
+    public String uploadImage(String newFileName, MultipartFile file) throws IOException {
+        try {
+            minioClient.putObject(
+                    io.minio.PutObjectArgs.builder()
+                            .bucket(minioProperties.getCoverUploadBucketName())
+                            .object(newFileName)
+                            .stream(file.getInputStream(), file.getSize(), -1)
+                            .contentType(file.getContentType())
+                            .build()
+            );
+        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                 InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException e) {
+            throw new UploadPutException(e.getMessage());
+        }
+        return minioProperties.getEndpoint()
+                + "/" + minioProperties.getCoverUploadBucketName()
+                + "/" + newFileName;
     }
 }

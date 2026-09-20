@@ -1,6 +1,7 @@
 package com.vi.service;
 
 import com.vi.entity.dto.ViFileDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 文件上传之后的前置检查服务
@@ -16,4 +17,12 @@ public interface FilePreFilterService {
      * @return 返回检查结果，null表示通过检查，非null表示不通过检查
      */
     public String preCheckVideoInfo(ViFileDTO videoDetailsInfoDTO);
+
+    /**
+     * 预检查视频封面图片信息
+     *
+     * @param file 视频封面图片
+     * @return 过滤后的文件名
+     */
+    String preCheckVideoCover(MultipartFile file);
 }

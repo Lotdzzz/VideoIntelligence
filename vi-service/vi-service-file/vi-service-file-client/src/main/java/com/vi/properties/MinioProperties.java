@@ -28,4 +28,19 @@ public class MinioProperties {
      * MinIO服务的秘密密钥
      */
     private String secretKey;
+
+    /**
+     * 用于获取预签名url的持续时间
+     */
+    private Integer expiryTime;
+
+    /**
+     * 视频文件桶名称
+     */
+    private String videoUploadBucketName;
+
+    /**
+     * 封面文件桶名称
+     */
+    private String coverUploadBucketName;
 }

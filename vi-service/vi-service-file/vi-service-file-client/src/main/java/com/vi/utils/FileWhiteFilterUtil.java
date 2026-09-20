@@ -15,16 +15,16 @@ public class FileWhiteFilterUtil {
      *
      * @param whiteList 白名单列表
      * @param fileName  文件名
-     * @return false 如果文件名不在白名单中，true 否则
+     * @return true表示通过 白名单过滤，false表示不通过
      */
-    public static boolean filter(List<String> whiteList, String fileName) {
+    public static boolean whiteFilter(List<String> whiteList, String fileName) {
         // 判空
         if (whiteList == null || whiteList.isEmpty()) {
-            return false;
+            return true;
         }
         // 获取文件扩展名
         String extension = getExtension(fileName);
-        return whiteList.contains(extension);
+        return !whiteList.contains(extension);
 
     }
 

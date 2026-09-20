@@ -5,13 +5,16 @@ import com.vi.entity.dto.PartUploadCompleteDTO;
 import com.vi.entity.dto.ViFileDTO;
 import com.vi.entity.model.VideoUploadProgress;
 import com.vi.entity.vo.VideoSliceMissionVo;
+import com.vi.properties.MinioProperties;
 import com.vi.service.*;
 import com.vi.utils.VideoChunkAllocatorUtil;
 import com.vi.utils.VideoUploadProgressConverterUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -31,6 +34,8 @@ public class IVideoUploadServiceImpl implements IVideoUploadService {
     private final ViFileService fileService;
 
     private final RedisService redisService;
+
+    private final MinioProperties minioProperties;
 
     /**
      * 接收视频信息，返回minIO的预签名集合 用于分片上传
@@ -111,6 +116,24 @@ public class IVideoUploadServiceImpl implements IVideoUploadService {
         }
 
         // 保存文件持久化到数据库
-        return fileService.addFile(VideoUploadProgressConverterUtil.toVIFileDTO(videoInfo, minioService.getBucketName()));
+        return fileService.addFile(VideoUploadProgressConverterUtil.toVIFileDTO(videoInfo, minioProperties.getVideoUploadBucketName()));
+    }
+
+    /**
+     * 保存视频封面
+     *
+     * @param file 视频封面文件
+     * @return 封面url
+     */
+    @Override
+    public String saveVideoCover(MultipartFile file) throws IOException {
+        // 进行文件检查
+        String original = filePreFilterService.preCheckVideoCover(file);
+
+        // 使用UUID去重文件名
+        String newFileName = UUID.randomUUID().toString().replace("-", "") + "-" + original;
+
+        // 上传文件到minIO
+        return minioService.uploadImage(newFileName, file);
     }
 }

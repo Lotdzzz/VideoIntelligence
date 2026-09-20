@@ -2,8 +2,10 @@ package com.vi.service;
 
 import com.vi.entity.dto.ViFileDTO;
 import com.vi.entity.vo.VideoSliceMissionVo;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.model.CompletedPart;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -63,9 +65,11 @@ public interface MinioService {
     public void complete(String objectName, String uploadId, List<CompletedPart> parts);
 
     /**
-     * 获取MinIO桶名称
+     * 上传图片文件到MinIO
      *
-     * @return MinIO桶名称
+     * @param newFileName 新文件名
+     * @param file        上传的图片文件
+     * @return 图片在MinIO中的访问URL
      */
-    public String getBucketName();
+    String uploadImage(String newFileName, MultipartFile file) throws IOException;
 }

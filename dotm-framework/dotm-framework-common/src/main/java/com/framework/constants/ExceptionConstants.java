@@ -87,6 +87,8 @@ public class ExceptionConstants {
 
     public static final String FILE_PART_COMPLETE_FAILED = "文件分片上传完成失败";
 
+    public static final String UPLOAD_PUT_ERROR = "封面上传异常";
+
     /**
      * xss攻击异常
      */
