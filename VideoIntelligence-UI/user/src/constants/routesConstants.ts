@@ -31,6 +31,8 @@ export const routesConstants = {
     LOGOUT: '/auth/logout',
     //获取视频分片上传任务（返回 uploadId / 分片大小 / 总分片数 / 各分片预签名URL）
     FILE_PREDESIGN_SLICE_INFO: '/file/user/predesign/slice/info',
+    //保存视频封面图片（返回封面访问URL）
+    FILE_PREDESIGN_COVER_SAVE: '/file/user/predesign/cover/save',
     //上报某个分片上传完成（携带 ETag；最后一片上报后由服务端合并分片并写入资源库）
     FILE_PREDESIGN_SLICE_COMPLETE: '/file/user/predesign/slice/upload',
 }

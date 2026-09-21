@@ -799,7 +799,7 @@ const handleAction = (action: string) => {
             <p class="add-upload-tip">仅支持 1 个视频文件，再次选择会替换已选文件</p>
           </div>
         </el-upload>
-        <div class="add-panel-tip">选中的文件只用于演示，不会真实上传</div>
+        <div class="add-panel-tip">上传前会从视频中随机截取画面作为封面</div>
       </div>
 
       <!-- 方式三：上传视频集合（无序） -->
@@ -1337,4 +1337,3 @@ const handleAction = (action: string) => {
 }
 
 </style>
-

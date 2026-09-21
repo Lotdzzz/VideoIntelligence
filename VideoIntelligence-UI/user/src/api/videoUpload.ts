@@ -15,11 +15,23 @@ import type {
  * 该接口需要携带 token（网关 /file/** 不在游客白名单内），token 失效时后端返回 401，
  * 由 utils/request.ts 统一清除本地凭证并把错误透传给调用方
  *
- * @param data 视频信息（原文件名 / 文件大小 / 分类ID / 封面占位）
+ * @param data 视频信息（原文件名 / 文件大小 / 分类ID / 封面URL）
  * @returns 分片上传任务（uploadId / 分片大小 / 总分片数 / 各分片预签名URL）
  */
 export function getSliceInfo(data: VideoSliceInfoDTO) {
   return request.post<unknown, VideoSliceMissionVO>(routesConstants.FILE_PREDESIGN_SLICE_INFO, data)
+}
+
+/**
+ * 保存视频封面图片
+ *
+ * @param file 前端从视频随机帧生成的 JPEG 图片
+ * @returns 封面访问 URL
+ */
+export function saveVideoCover(file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request.post<unknown, string>(routesConstants.FILE_PREDESIGN_COVER_SAVE, formData)
 }
 
 /**

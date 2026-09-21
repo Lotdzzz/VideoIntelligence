@@ -1,4 +1,4 @@
-import {getSliceInfo, reportSliceCompleted} from '@/api/videoUpload'
+import {getSliceInfo, reportSliceCompleted, saveVideoCover} from '@/api/videoUpload'
 import {putSliceToMinio} from '@/utils/minioPartUpload'
 import {resolveErrorMessage} from '@/utils/errorMessage'
 import type {VideoSlicePartVO} from '@/types/file/videoSlice'
@@ -99,6 +99,71 @@ export interface UploadSummary {
   failed: { name: string; reason: string }[]
 }
 
+/**
+ * 从本地视频随机截取一帧，生成可上传的 JPEG 封面。
+ *
+ * 使用 object URL 只读取本地文件，不会把视频内容发送到第三方；
+ * 完成后立即释放 URL，避免批量上传时累积 Blob URL。
+ */
+export async function captureVideoRandomFrame(file: File): Promise<File> {
+  const objectUrl = URL.createObjectURL(file)
+  const video = document.createElement('video')
+  video.preload = 'metadata'
+  video.muted = true
+  video.playsInline = true
+  video.src = objectUrl
+
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const handleLoadedMetadata = () => {
+        if (!video.videoWidth || !video.videoHeight) {
+          reject(new Error('无法读取视频画面尺寸'))
+          return
+        }
+        if (!Number.isFinite(video.duration) || video.duration <= 0) {
+          reject(new Error('无法读取视频时长'))
+          return
+        }
+        // 避开片头片尾，降低截到黑场、片头字幕或结束画面的概率。
+        const start = Math.min(video.duration * 0.1, Math.max(0, video.duration - 0.1))
+        const end = Math.max(start, video.duration * 0.9)
+        video.currentTime = start + Math.random() * (end - start)
+      }
+      const handleSeeked = () => resolve()
+      const handleError = () => reject(new Error('无法读取视频画面'))
+
+      video.addEventListener('loadedmetadata', handleLoadedMetadata, {once: true})
+      video.addEventListener('seeked', handleSeeked, {once: true})
+      video.addEventListener('error', handleError, {once: true})
+      video.load()
+    })
+
+    const canvas = document.createElement('canvas')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    const context = canvas.getContext('2d')
+    if (!context) {
+      throw new Error('浏览器不支持视频封面截取')
+    }
+    context.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+          (value) => value ? resolve(value) : reject(new Error('视频封面生成失败')),
+          'image/jpeg',
+          0.86,
+      )
+    })
+
+    const baseName = file.name.replace(/\.[^.]+$/, '') || 'video-cover'
+    return new File([blob], `${baseName}.jpg`, {type: 'image/jpeg'})
+  } finally {
+    video.removeAttribute('src')
+    video.load()
+    URL.revokeObjectURL(objectUrl)
+  }
+}
+
 /** 读取扩展名（不含点，统一小写）；无扩展名时返回空串 */
 function getExtension(fileName: string): string {
   const dotIndex = fileName.lastIndexOf('.')
@@ -195,14 +260,16 @@ async function uploadOneFile(
   }
   notify({...task})
 
-  // 1. 取分片任务：服务端算好分片大小 / 分片数，并逐个签好预签名URL
+  // 1. 先从本地视频随机截帧并保存封面；失败时不创建视频分片任务
+  const coverFile = await captureVideoRandomFrame(file)
+  const cover = await withRetry(() => saveVideoCover(coverFile), PUT_RETRY_TIMES)
+
+  // 2. 取分片任务：服务端算好分片大小 / 分片数，并逐个签好预签名URL
   const mission = await getSliceInfo({
     originalName: file.name,
     fileSize: file.size,
     categoryId,
-    // 封面暂缺：后端用 Map.of 组装缓存，value 为 null 会抛 NPE，因此传空串占位
-    // （待「封面由前端截帧 / 由后端转码生成」方案确定后替换）
-    cover: '',
+    cover,
   })
 
   const parts = mission.videoReturnInfoVOList ?? []
