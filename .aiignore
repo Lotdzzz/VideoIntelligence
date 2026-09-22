@@ -106,7 +106,7 @@ __pycache__/
 .python-version
 
 # Python 虚拟环境
-.venv/
+VideoIntelligence-Python-Service/.venv/
 venv/
 ENV/
 env/

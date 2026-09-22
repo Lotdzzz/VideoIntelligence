@@ -3,7 +3,10 @@ Windows Registry Editor Version 5.00
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment]
 ; nacos配置
 "NACOS_SERVER_HOST_PORT"=""
+"NACOS_SERVER_IP"=""
 "NACOS_GROUP"="DOTM_GROUP"
+"NACOS_DEFAULT_GROUP"="DEFAULT_GROUP"
+"NACOS_NAMESPACE"="public"
 "VI_GROUP"="VI_GROUP"
 
 ; 消息队列配置
@@ -45,6 +48,7 @@ Windows Registry Editor Version 5.00
 "FILE_PORT"="9997" ;文件
 ; 业务服务端口配置
 "SERVICE_FILE"="1001" ;VI文件服务
+"SERVICE_FILE_PYTHON"="1002" ;python端文件服务
 
 ; jwt密钥配置
 "SECRET_KEY"=""
