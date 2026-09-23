@@ -5,6 +5,7 @@ import com.framework.constants.TokenConstants;
 import com.dotm.entity.dto.login.LoginBodyDTO;
 import com.dotm.entity.model.system.SysUser;
 import com.dotm.service.SysUserService;
+import com.framework.exception.user.UserPasswordNotMatchException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -46,6 +48,10 @@ public class RecordUserInfoAspectJ {
         Object result = null;
         try {
             result = joinPoint.proceed();
+        } catch (UserPasswordNotMatchException e) {
+            throw new UserPasswordNotMatchException(e.getMessage());
+        } catch (LockedException e) {
+            throw new LockedException(e.getMessage());
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
