@@ -12,6 +12,12 @@
     <artifactId>vi-service-file-client</artifactId>
 
     <dependencies>
+        <!--mq-->
+        <dependency>
+            <groupId>com.framework</groupId>
+            <artifactId>dotm-framework-mq</artifactId>
+        </dependency>
+
         <!--阿里云oss-->
         <dependency>
             <groupId>com.aliyun.oss</groupId>

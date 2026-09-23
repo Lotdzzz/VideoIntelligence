@@ -1,6 +1,11 @@
 com.framework.config.RabbitMQConvertConfig
 com.framework.config.RabbitMQListenerConfig
 com.framework.config.RabbitMQProducerTemplate
+
 com.framework.config.auth.AuthLogBinding
 com.framework.config.auth.AuthLogExchange
 com.framework.config.auth.AuthLogQueue
+
+com.framework.config.file.FileURLQueue
+com.framework.config.file.FileExchange
+com.framework.config.file.FileBinding
