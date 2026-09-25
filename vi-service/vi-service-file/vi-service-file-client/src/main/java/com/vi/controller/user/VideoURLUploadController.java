@@ -2,9 +2,12 @@ package com.vi.controller.user;
 
 import com.framework.model.Result;
 import com.vi.entity.dto.URLLinkUploadDTO;
+import com.vi.entity.vo.APIURLsInfoVO;
 import com.vi.service.VideoURLService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 视频链接上传接口
@@ -23,8 +26,7 @@ public class VideoURLUploadController {
      * 接受用户上传的url链接
      */
     @PostMapping("/receive")
-    public Result<Object> receiveLink(@RequestBody URLLinkUploadDTO url) {
-        videoURLService.sendVideoURL(url.getUrl());
-        return Result.success();
+    public Result<List<APIURLsInfoVO>> receiveLink(@RequestBody URLLinkUploadDTO url) {
+        return videoURLService.sendVideoURL(url.getUrl());
     }
 }

@@ -43,6 +43,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <!--vi service file api-->
+            <dependency>
+                <groupId>com.vi</groupId>
+                <artifactId>vi-service-file-api</artifactId>
+                <version>${dotm.version}</version>
+            </dependency>
+
             <!--阿里云oss-->
             <dependency>
                 <groupId>com.aliyun.oss</groupId>

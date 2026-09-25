@@ -11,4 +11,24 @@
 
     <artifactId>vi-service-file-api</artifactId>
 
+    <dependencies>
+        <!--core-->
+        <dependency>
+            <groupId>com.framework</groupId>
+            <artifactId>dotm-framework-core</artifactId>
+        </dependency>
+
+        <!--openfeign-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!--负载均衡 配套openfeign-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

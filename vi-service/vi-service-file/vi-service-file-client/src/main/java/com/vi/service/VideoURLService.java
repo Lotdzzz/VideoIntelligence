@@ -1,5 +1,10 @@
 package com.vi.service;
 
+import com.framework.model.Result;
+import com.vi.entity.vo.APIURLsInfoVO;
+
+import java.util.List;
+
 /**
  * 视频链接服务
  *
@@ -12,5 +17,5 @@ public interface VideoURLService {
      *
      * @param url 视频链接
      */
-    void sendVideoURL(String url);
+    Result<List<APIURLsInfoVO>> sendVideoURL(String url);
 }

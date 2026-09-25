@@ -12,6 +12,12 @@
     <artifactId>vi-service-file-client</artifactId>
 
     <dependencies>
+        <!--vi service file api-->
+        <dependency>
+            <groupId>com.vi</groupId>
+            <artifactId>vi-service-file-api</artifactId>
+        </dependency>
+
         <!--mq-->
         <dependency>
             <groupId>com.framework</groupId>
