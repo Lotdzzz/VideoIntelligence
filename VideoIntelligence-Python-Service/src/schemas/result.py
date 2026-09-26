@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 T = TypeVar('T')
 
-# 2. 定义响应结果模型（对应 Java 的 Result<T>）
+# 定义响应结果模型（对应 Java 的 Result<T>）
 class Result(BaseModel, Generic[T]):
     code: int
     msg: str

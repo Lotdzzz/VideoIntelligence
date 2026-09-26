@@ -3,3 +3,4 @@ nacos-sdk-python
 httpx
 uvicorn
 pika
+pyyaml

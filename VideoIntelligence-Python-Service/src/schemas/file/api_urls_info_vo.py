@@ -6,3 +6,4 @@ from typing import Optional
 class APIURLsInfoVO(BaseModel):
     title: Optional[str] = None  # 视频标题
     url: Optional[str] = None  # 视频链接
+    cover: Optional[str] = None # 视频封面

@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from api import file
 from contextlib import asynccontextmanager
-from v2.nacos import NacosNamingService
+from v2.nacos import NacosNamingService, NacosConfigService, ConfigParam
 from config.nacos_config import nacos_client, nacos_register, nacos_deregister
 from config.rabbitmq_config import mq_client
 from service.consumer.file_consumer import run_consumer_in_thread
+import yaml
 
 
 # 创建namingService实例并生成注册和销毁方法 nacos加入fastapi的生命周期初始化
@@ -13,6 +14,16 @@ async def lifespan(_app: FastAPI):
     # 注册nacos
     naming_service = await NacosNamingService.create_naming_service(nacos_client)
     await naming_service.register_instance(nacos_register)
+
+    # 拉取 Nacos 配置中心 YAML
+    config_service = await NacosConfigService.create_config_service(nacos_client)
+    config_str = await config_service.get_config(ConfigParam(
+        data_id="application-file.yaml", group="VI_GROUP"))
+    file_dict = yaml.safe_load(config_str)
+
+    # 把配置挂到 app.state 上，其它模块通过 request.app.state.xxx 访问
+    _app.state.file_config = file_dict
+
     # 启动rabbitmq
     mq_client.connect()
     run_consumer_in_thread()
@@ -21,10 +32,11 @@ async def lifespan(_app: FastAPI):
     finally:
         # 注销nacos
         await naming_service.deregister_instance(nacos_deregister)
-        #断开rabbitmq
+        await config_service.shutdown()
+        # 断开rabbitmq
         mq_client.close()
 
 
 # 挂载nacos以及api接口
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, debug=False)
 app.include_router(file.router)

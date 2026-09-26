@@ -2,7 +2,8 @@ from common import NacosConfig as nacos
 from v2.nacos import (
     ClientConfigBuilder,
     GRPCConfig,
-    RegisterInstanceParam, DeregisterInstanceParam,
+    RegisterInstanceParam,
+    DeregisterInstanceParam,
 )
 
 # nacos客户端
