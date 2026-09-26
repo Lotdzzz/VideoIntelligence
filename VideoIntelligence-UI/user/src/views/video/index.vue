@@ -12,6 +12,7 @@ import {
 } from 'element-plus'
 import {RESOURCE_PAGE_SIZE} from '@/api/fileResource'
 import {listUserFileCategories} from '@/api/fileCategory'
+import {resolveVideoLink} from '@/api/videoLink'
 import {useVideoList} from '@/features/video'
 import {
   VIDEO_ACCEPT,
@@ -25,6 +26,7 @@ import {resolveErrorMessage} from '@/utils/errorMessage'
 import {formatFileSize, resolveFileUrl} from '@/utils/file'
 import type {FileCategoryVO} from '@/types/file/fileCategoryVO'
 import type {FileVO} from '@/types/file/fileVO'
+import type {APIURLsInfoVO} from '@/types/file/apiURLsInfoVO'
 
 /**
  * 视频内容区
@@ -238,12 +240,115 @@ const addLinkForm = ref<{ url: string; name: string }>({ url: '', name: '' })
 /** 视频链接表单实例：点「确定」时手动触发校验 */
 const addLinkFormRef = ref<FormInstance>()
 
-/** 视频链接校验规则：必填 + 必须是 http(s) 直链 */
+/** 链接解析结果是否正在请求：解析期间锁定整个链接交互区 */
+const resolvingLink = ref(false)
+
+/** 链接解析结果 */
+const linkResults = ref<APIURLsInfoVO[]>([])
+
+/** 默认全选解析结果；使用结果下标避免重复 URL 造成选中状态串联 */
+const selectedLinkIndexes = ref<number[]>([])
+
+/** 最近一次解析请求的序号，避免超时/关闭后的旧响应污染当前弹窗 */
+let linkRequestSequence = 0
+
+/** 解析请求超时时间：后端包含外部平台解析，给足等待时间但避免无限等待 */
+const LINK_REQUEST_TIMEOUT_MS = 30_000
+
+/** 视频链接校验规则：必填 + 必须是 http(s) 链接 */
 const addLinkRules: FormRules = {
   url: [
     { required: true, message: '请输入视频链接', trigger: 'blur' },
-    { pattern: /^https?:\/\/.+/i, message: '链接需以 http:// 或 https:// 开头', trigger: 'blur' },
+    { pattern: /^https?:\/\/[^\s]+$/i, message: '请输入有效的 http:// 或 https:// 链接', trigger: 'blur' },
   ],
+}
+
+const selectedLinkCount = computed(() => selectedLinkIndexes.value.length)
+
+const allLinksSelected = computed(
+    () => linkResults.value.length > 0 && selectedLinkCount.value === linkResults.value.length,
+)
+
+const linkSelectionIndeterminate = computed(
+    () => selectedLinkCount.value > 0 && !allLinksSelected.value,
+)
+
+/** 粘贴链接后自动解析；普通输入不会因为每次按键触发请求 */
+const handleLinkPaste = () => {
+  window.setTimeout(() => {
+    if (!resolvingLink.value) {
+      resolveLink()
+    }
+  }, 0)
+}
+
+const toggleLinkSelection = (index: number, checked: CheckboxValueType) => {
+  const selected = new Set(selectedLinkIndexes.value)
+  if (checked === true) {
+    selected.add(index)
+  } else {
+    selected.delete(index)
+  }
+  selectedLinkIndexes.value = [...selected].sort((a, b) => a - b)
+}
+
+const toggleAllLinkSelection = (checked: CheckboxValueType) => {
+  selectedLinkIndexes.value = checked === true ? linkResults.value.map((_, index) => index) : []
+}
+
+/** 请求结束后清理解析状态，但只允许当前请求修改页面 */
+const resetLinkResolution = (requestId: number) => {
+  if (requestId === linkRequestSequence) {
+    resolvingLink.value = false
+  }
+}
+
+/** 调用后端解析链接；超时后允许用户保留链接并重新解析 */
+const resolveLink = async () => {
+  if (resolvingLink.value) {
+    return
+  }
+  const valid = await addLinkFormRef.value?.validateField('url').catch(() => false)
+  if (valid === false) {
+    return
+  }
+  const url = addLinkForm.value.url.trim()
+  if (!url) {
+    return
+  }
+
+  const requestId = ++linkRequestSequence
+  const controller = new AbortController()
+  const timeoutId = window.setTimeout(() => controller.abort(), LINK_REQUEST_TIMEOUT_MS)
+  resolvingLink.value = true
+  linkResults.value = []
+  selectedLinkIndexes.value = []
+
+  try {
+    const results = await resolveVideoLink(url, controller.signal)
+    if (requestId !== linkRequestSequence) {
+      return
+    }
+    linkResults.value = Array.isArray(results) ? results : []
+    selectedLinkIndexes.value = linkResults.value.map((_, index) => index)
+    if (linkResults.value.length === 0) {
+      ElMessage.warning('未解析到视频内容，请检查链接后重试')
+    } else {
+      ElMessage.success(`已解析 ${linkResults.value.length} 个视频条目，默认全部选中`)
+    }
+  } catch (error) {
+    if (requestId !== linkRequestSequence) {
+      return
+    }
+    if (controller.signal.aborted) {
+      ElMessage.warning('解析等待时间较长，已停止等待，请稍后重试')
+    } else {
+      ElMessage.error(resolveErrorMessage(error, '视频链接解析失败，请检查链接后重试'))
+    }
+  } finally {
+    window.clearTimeout(timeoutId)
+    resetLinkResolution(requestId)
+  }
 }
 
 /** 方式二已选择的单个视频（auto-upload 关闭，不会真实上传） */
@@ -332,12 +437,12 @@ const handleSingleFileExceed = (files: File[]) => {
 
 /**
  * 确定添加
- * 1）link   当前仅收集表单：后端还没有「按链接转存」接口，避免写入点不开的脏数据
+ * 1）link   调用链接解析接口并展示可选结果；当前为演示模式，不执行落库
  * 2）single 走分片直传链路（features/videoUpload.ts）：单个文件
  * 3）batch  同一条链路，多个文件按顺序逐个上传（服务端按各自上传完成时间落库）
  */
 const submitAdd = async () => {
-  if (uploading.value) {
+  if (uploading.value || resolvingLink.value) {
     return
   }
   // 上传必须归属分类：后端落库时会解析 categoryId，为空会上传失败
@@ -348,11 +453,16 @@ const submitAdd = async () => {
   const targetCategoryId = addCategoryId.value
 
   if (addMode.value === 'link') {
-    const valid = await addLinkFormRef.value?.validate().catch(() => false)
-    if (!valid) {
+    if (linkResults.value.length === 0) {
+      await resolveLink()
       return
     }
-    ElMessage.info('视频链接添加能力待后端提供转存接口后开放')
+    if (selectedLinkCount.value === 0) {
+      ElMessage.warning('请至少选择一个视频条目')
+      return
+    }
+    ElMessage.success(`演示完成：已选择 ${selectedLinkCount.value} 个视频条目`)
+    addDialogVisible.value = false
     return
   }
 
@@ -387,6 +497,10 @@ const submitAdd = async () => {
 
 /** 弹窗关闭后重置：回到默认方式并清空表单 / 已选文件 / 上传进度，避免下次打开残留上一次的内容 */
 const resetAddDialog = () => {
+  linkRequestSequence++
+  resolvingLink.value = false
+  linkResults.value = []
+  selectedLinkIndexes.value = []
   addMode.value = 'link'
   addLinkForm.value = {url: '', name: ''}
   singleFiles.value = []
@@ -404,7 +518,7 @@ const collectSelectedFiles = (): File[] => {
 
 /** 切换添加方式（上传中禁止切换，避免表单状态与上传中的任务错位） */
 const handleModeChange = (mode: AddMode) => {
-  if (uploading.value) {
+  if (uploading.value || resolvingLink.value) {
     return
   }
   addMode.value = mode
@@ -699,8 +813,8 @@ const handleAction = (action: string) => {
         title="添加视频资源"
         width="640px"
         :close-on-click-modal="false"
-        :close-on-press-escape="!uploading"
-        :show-close="!uploading"
+        :close-on-press-escape="!uploading && !resolvingLink"
+        :show-close="!uploading && !resolvingLink"
         @closed="resetAddDialog"
     >
       <!-- 第一步：选择添加方式（单选卡片） -->
@@ -762,7 +876,9 @@ const handleAction = (action: string) => {
                 v-model="addLinkForm.url"
                 maxlength="500"
                 clearable
-                placeholder="请输入视频直链，如 https://example.com/demo.mp4"
+                :disabled="resolvingLink"
+                placeholder="粘贴视频链接后自动解析"
+                @paste="handleLinkPaste"
             />
           </el-form-item>
           <el-form-item label="视频名称" prop="name">
@@ -770,11 +886,47 @@ const handleAction = (action: string) => {
                 v-model="addLinkForm.name"
                 maxlength="100"
                 clearable
+                :disabled="resolvingLink"
                 placeholder="选填，留空时按链接自动命名"
             />
           </el-form-item>
         </el-form>
-        <div class="add-panel-tip">支持 http / https 直链；该能力待后端提供转存接口后开放</div>
+        <div v-if="resolvingLink" class="add-panel-tip is-loading">
+          正在解析视频链接，请耐心等待；解析期间不能修改或关闭弹窗（最长等待 30 秒）
+        </div>
+        <div v-else class="add-panel-tip">
+          支持 http / https 链接；粘贴后自动解析，也可以点击「确定」开始解析
+        </div>
+        <div v-if="linkResults.length > 0" class="link-result-panel">
+          <div class="link-result-head">
+            <span>解析结果（已选 {{ selectedLinkCount }} / {{ linkResults.length }}）</span>
+            <el-checkbox
+                :model-value="allLinksSelected"
+                :indeterminate="linkSelectionIndeterminate"
+                :disabled="resolvingLink"
+                @change="toggleAllLinkSelection"
+            >
+              全选
+            </el-checkbox>
+          </div>
+          <div class="link-result-list">
+            <div
+                v-for="(item, index) in linkResults"
+                :key="`${item.url}-${index}`"
+                class="link-result-item"
+                :class="{ 'is-selected': selectedLinkIndexes.includes(index) }"
+            >
+              <el-checkbox
+                  :model-value="selectedLinkIndexes.includes(index)"
+                  :disabled="resolvingLink"
+                  @change="(checked: CheckboxValueType) => toggleLinkSelection(index, checked)"
+              />
+              <div class="link-result-info">
+                <div class="link-result-title" :title="item.title">{{ item.title || '未命名视频' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 方式二：上传单个视频 -->
@@ -852,8 +1004,10 @@ const handleAction = (action: string) => {
       </div>
 
       <template #footer>
-        <el-button :disabled="uploading" @click="addDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="uploading" @click="submitAdd">确定</el-button>
+        <el-button :disabled="uploading || resolvingLink" @click="addDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="uploading || resolvingLink" @click="submitAdd">
+          {{ addMode === 'link' && linkResults.length > 0 ? '完成' : '确定' }}
+        </el-button>
       </template>
     </el-dialog>
   </div>
@@ -1293,6 +1447,90 @@ const handleAction = (action: string) => {
   margin-top: 8px;
   font-size: 12px;
   line-height: 1.5;
+  color: #909399;
+}
+
+.add-panel-tip.is-loading {
+  color: #409eff;
+}
+
+/* 链接解析结果：限制高度，避免分集过多时撑满弹窗 */
+.link-result-panel {
+  margin-top: 14px;
+  border-top: 1px solid #f0f2f5;
+  padding-top: 12px;
+}
+
+.link-result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #606266;
+}
+
+.link-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.link-result-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.link-result-item.is-selected {
+  border-color: #1f2d3d;
+  background: #f7f8fa;
+}
+
+.link-result-cover {
+  flex: none;
+  width: 72px;
+  height: 42px;
+  border-radius: 4px;
+  object-fit: cover;
+  background: #f5f7fa;
+}
+
+.link-result-cover-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c0c4cc;
+  font-size: 11px;
+}
+
+.link-result-info {
+  min-width: 0;
+}
+
+.link-result-title,
+.link-result-url {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-result-title {
+  font-size: 13px;
+  color: #1f2d3d;
+}
+
+.link-result-url {
+  margin-top: 4px;
+  font-size: 11px;
   color: #909399;
 }
 

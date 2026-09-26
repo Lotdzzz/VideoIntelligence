@@ -19,4 +19,9 @@ public class APIURLsInfoVO {
      * 视频链接
      */
     private String url;
+
+    /**
+     * 视频封面
+     */
+    private String cover;
 }

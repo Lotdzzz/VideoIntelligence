@@ -35,6 +35,8 @@ export const routesConstants = {
     FILE_PREDESIGN_COVER_SAVE: '/file/user/predesign/cover/save',
     //上报某个分片上传完成（携带 ETag；最后一片上报后由服务端合并分片并写入资源库）
     FILE_PREDESIGN_SLICE_COMPLETE: '/file/user/predesign/slice/upload',
+    //解析外部视频链接并返回可选择的视频条目（演示，不直接落库）
+    FILE_LINK_RECEIVE: '/file/link/receive',
 }
 
 /**
