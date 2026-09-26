@@ -46,6 +46,7 @@ public class VideoUploadController {
 
     /**
      * 上传视频分片
+     * 上传视频分片并且文件合并完成后将通过消息队列发送给python微服务进行视频分析
      */
     @PostMapping("/slice/upload")
     public Result<String> uploadSlice(@Valid @RequestBody PartUploadCompleteDTO partUploadCompleteDTO) {

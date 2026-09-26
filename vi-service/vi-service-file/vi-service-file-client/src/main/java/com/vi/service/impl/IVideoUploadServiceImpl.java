@@ -5,6 +5,7 @@ import com.vi.entity.dto.PartUploadCompleteDTO;
 import com.vi.entity.dto.ViFileDTO;
 import com.vi.entity.model.VideoUploadProgress;
 import com.vi.entity.vo.VideoSliceMissionVo;
+import com.vi.producer.FileProducer;
 import com.vi.properties.MinioProperties;
 import com.vi.service.*;
 import com.vi.utils.VideoChunkAllocatorUtil;
@@ -36,6 +37,8 @@ public class IVideoUploadServiceImpl implements IVideoUploadService {
     private final RedisService redisService;
 
     private final MinioProperties minioProperties;
+
+    private final FileProducer fileProducer;
 
     /**
      * 接收视频信息，返回minIO的预签名集合 用于分片上传
@@ -73,6 +76,7 @@ public class IVideoUploadServiceImpl implements IVideoUploadService {
 
     /**
      * 上传视频分片
+     * 上传视频分片并且文件合并完成后将通过消息队列发送给python微服务进行视频分析
      *
      * @param partUploadCompleteDTO 分片上传完成信息
      * @return true 如果上传成功，false 如果上传失败
@@ -115,8 +119,20 @@ public class IVideoUploadServiceImpl implements IVideoUploadService {
             throw new UploadMultipartCompeteFailedException(e.getMessage());
         }
 
+        ViFileDTO viFileDTO = VideoUploadProgressConverterUtil.toVIFileDTO(
+                videoInfo,
+                minioProperties.getVideoUploadBucketName());
+
         // 保存文件持久化到数据库
-        return fileService.addFile(VideoUploadProgressConverterUtil.toVIFileDTO(videoInfo, minioProperties.getVideoUploadBucketName()));
+        boolean isAdded = fileService.addFile(viFileDTO);
+
+        // 将视频实体通过消息队列发给python微服务进行视频分析处理
+        if (isAdded) {
+            fileProducer.send(viFileDTO);
+            return true;
+        }
+
+        return false;
     }
 
     /**

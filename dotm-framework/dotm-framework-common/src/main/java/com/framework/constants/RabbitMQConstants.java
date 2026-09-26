@@ -19,7 +19,7 @@ public class RabbitMQConstants {
     /**
      * 文件模块的视频链接key
      */
-    public static final String URL_ROUTING_KEY = "file.url";
+    public static final String URL_ROUTING_KEY = "file.analysis";
 
     /**
      * 文件模块交换机
