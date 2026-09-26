@@ -18,7 +18,7 @@ import java.util.List;
 public interface PythonFileController {
 
     /**
-     * 访问python微服务
+     * 访问python微服务上传链接后返回视频子链接或者视频信息
      */
     @PostMapping("/geturl")
     Result<List<APIURLsInfoVO>> getURLsByVideoURL(@RequestBody APIURLLinkUploadDTO url);

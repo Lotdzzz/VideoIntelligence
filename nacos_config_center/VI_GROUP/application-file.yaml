@@ -1,13 +1,26 @@
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 4096MB      # 单个文件最大大小
+      max-request-size: 40960MB  # 整个请求最大大小
 minio:
   endpoint: http://192.168.99.128:9000  # MinIO 服务地址
   access-key: ${MINIO_ACCESS_KEY}      # Access Key
   secret-key: ${MINIO_SECRET_KEY}      # Secret Key
-  bucket-name: video-upload    # 默认使用的存储桶名称
+  video-upload-bucket-name: video-upload    # 默认使用的存储桶名称
+  cover-upload-bucket-name: cover-upload    # 默认使用的存储桶名称
   expiry-time: 5 # 用于获取预签名url的持续时间 单元为分钟
 # 文件上传白名单
+aliyun:
+  oss:
+    endpoint: oss-cn-beijing.aliyuncs.com
+    access-key-id: ${OSS_ACCESS_KEY_ID}
+    access-key-secret: ${OSS_ACCESS_KEY_SECRET}
+    bucket-name: riventoy-java-upload
 upload:
   white:
-    list:
+    video-list:
       - mp4
       - mov
       - avi
@@ -23,3 +36,10 @@ upload:
       - ts
       - m2ts
       - ogv
+    image-list:
+      - jpg
+      - jpeg
+      - png
+# 视频前缀
+video-prefix:
+  bilibili: https://www.bilibili.com
