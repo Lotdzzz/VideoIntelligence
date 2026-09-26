@@ -29,7 +29,7 @@ public class VideoUploadProgressConverterUtil {
                 .completedParts("0")
                 .fileSize(videoDetailsInfoDTO.getFileSize().toString())
                 .partSize(String.valueOf(videoDetailsInfoDTO.getChunkSize()))
-                .status(UploadStatus.PENDING.name())
+                .status(UploadStatus.UPLOADING.name())
                 .uploadId(videoDetailsInfoDTO.getUploadId())
                 .cover(videoDetailsInfoDTO.getCover())
                 .originalName(videoDetailsInfoDTO.getOriginalName())
@@ -99,7 +99,7 @@ public class VideoUploadProgressConverterUtil {
             viFileDTO.setCategoryId(Long.parseLong(videoInfo.getCategoryId()));
             viFileDTO.setFileType(FileWhiteFilterUtil.getExtension(videoInfo.getFileName()));
             viFileDTO.setFileExt(FileWhiteFilterUtil.getExtension(videoInfo.getFileName()));
-            viFileDTO.setStatus(FileConstants.getUploadStatus(UploadStatus.SUCCESS));
+            viFileDTO.setStatus(FileConstants.getUploadStatus(UploadStatus.UPLOADED));
             viFileDTO.setUploadTime(LocalDateTime.now());
             return viFileDTO;
         }

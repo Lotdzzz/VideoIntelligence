@@ -47,10 +47,12 @@ public class FileConstants {
      */
     public static Integer getUploadStatus(UploadStatus status) {
         return switch (status) {
-            case PENDING -> 0;
-            case UPLOADING -> 1;
-            case SUCCESS -> 2;
-            case FAILED -> 3;
+            case UPLOADING -> 0;
+            case UPLOADED -> 1;
+            case PROCESSING -> 2;
+            case SUCCESS -> 3;
+            case FAILED -> 4;
+            case CANCELED -> 5;
             default -> throw new IllegalArgumentException("Unknown status: " + status);
         };
     }
