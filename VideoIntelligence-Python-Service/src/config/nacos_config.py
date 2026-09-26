@@ -4,6 +4,7 @@ from v2.nacos import (
     GRPCConfig,
     RegisterInstanceParam,
     DeregisterInstanceParam,
+    ConfigParam,
 )
 
 # nacos客户端
@@ -31,4 +32,9 @@ nacos_deregister = DeregisterInstanceParam(
     port=nacos.service_file_python,
     group_name=nacos.nacos_default_group,
     ephemeral=True,
+)
+
+# 声明读取nacos配置中心的文件
+nacos_config_center = ConfigParam(
+    data_id="application-file.yaml", group="VI_GROUP"
 )

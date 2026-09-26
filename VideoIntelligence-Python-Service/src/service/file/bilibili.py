@@ -4,6 +4,8 @@ from urllib.parse import urlencode
 import requests
 from typing import Optional
 
+from config.exception.file.permission_exception import PermissionException
+from config.exception.file.url_param_exception import URLParamException
 from schemas.file.api_urls_info_vo import APIURLsInfoVO
 
 # 用来判断b站视频类型属于单视频还是多视频
@@ -40,7 +42,7 @@ def call_view_api(bvid: Optional[str] = None, aid: Optional[int] = None) -> dict
         params['bvid'] = bvid
         params['aid'] = aid
     else:
-        raise ValueError("params error")
+        raise URLParamException(msg="bvid aid参数异常")
 
     # 开始调用
     resp = requests.get(BILI_VIEW_API, params=params, headers=HEADERS, timeout=10)
@@ -48,7 +50,7 @@ def call_view_api(bvid: Optional[str] = None, aid: Optional[int] = None) -> dict
     json_data = resp.json()
     if json_data.get("code") != 0:
         # 常见：-404 稿件不存在，-403 权限不足，62002 稿件不可见
-        raise RuntimeError(f"B站API错误 code={json_data.get('code')} msg={json_data.get('message')}")
+        raise PermissionException(msg=f"B站API错误 code={json_data.get('code')} msg={json_data.get('message')}")
     return json_data["data"]
 
 
@@ -79,7 +81,7 @@ def extract_url_info(url: str):
 # 拼接下载地址
 def append_download_url(bvid: Optional[str] = None, cid: Optional[str] = None) -> str:
     if bvid is None or cid is None:
-        raise ValueError("bvid 和 cid 不能为空")
+        raise URLParamException(msg="bvid aid参数异常")
     params = {
         "bvid": bvid,
         "cid": cid,

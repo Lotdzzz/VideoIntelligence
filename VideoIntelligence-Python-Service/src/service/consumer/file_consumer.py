@@ -1,5 +1,7 @@
 import json
 import threading
+
+from config.exception import SystemException
 from config.rabbitmq_config import RabbitMQClient
 from common import RabbitMQConfig
 
@@ -8,16 +10,15 @@ def callback(ch, method, properties, body):
     """处理接收到的消息"""
     try:
         data = json.loads(body)
-        print(f"收到消息: {data}")
-
         # TODO: 在这里写你的业务逻辑，比如调用 service 里的处理函数
 
         # 手动 ACK，确认消息已被处理
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
-        print(f"处理消息失败: {e}")
+        print(e)
         # 处理失败，拒绝消息并重新入队（或者根据业务逻辑决定是否丢弃）
         ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+        raise SystemException(msg="RabbitMQ Call back error")
 
 
 def start_consumer():
@@ -38,6 +39,7 @@ def start_consumer():
         channel.start_consuming()
     except Exception as e:
         print(f"消费者运行异常: {e}")
+        raise SystemException(msg="RabbitMQ Running error")
     finally:
         consumer_client.close()
 

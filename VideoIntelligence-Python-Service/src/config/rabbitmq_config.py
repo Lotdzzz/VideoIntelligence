@@ -1,5 +1,6 @@
 import pika
 from common import RabbitMQConfig
+from config.exception import SystemException
 
 
 class RabbitMQClient:
@@ -28,8 +29,7 @@ class RabbitMQClient:
             # 声明队列，durable=True 保证 RabbitMQ 重启后队列不丢失
             self.channel.queue_declare(queue=RabbitMQConfig.queue_routing_key, durable=True)
         except Exception as e:
-            print(f"RabbitMQ 连接失败: {e}")
-            raise
+            raise SystemException(msg="RabbitMQ connection failed")
 
     def close(self):
         try:

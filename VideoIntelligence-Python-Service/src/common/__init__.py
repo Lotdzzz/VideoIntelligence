@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from os import getenv
 
+
 # nacos配置
 @dataclass(frozen=True)
 class NacosConfig:
@@ -10,6 +11,7 @@ class NacosConfig:
     nacos_namespace = getenv("NACOS_NAMESPACE", "public")
     nacos_service_name = "python-service"
     service_file_python = getenv("SERVICE_FILE_PYTHON", 1002)
+
 
 # rabbitmq配置
 @dataclass(frozen=True)
