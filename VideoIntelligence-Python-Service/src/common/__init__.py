@@ -21,4 +21,11 @@ class RabbitMQConfig:
     rabbitmq_server_username = getenv("RABBITMQ_SERVER_USERNAME")
     rabbitmq_server_password = getenv("RABBITMQ_SERVER_PASSWORD")
     rabbitmq_vhost = getenv("RABBITMQ_VHOST", "/")
-    queue_routing_key = "file.url"
+    queue_routing_key = "file.analysis"
+
+
+# minio配置
+@dataclass(frozen=True)
+class MinioConfig:
+    minio_access_key = getenv("MINIO_ACCESS_KEY")
+    minio_secret_key = getenv("MINIO_SECRET_KEY")

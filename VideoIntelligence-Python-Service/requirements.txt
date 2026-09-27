@@ -4,3 +4,6 @@ httpx
 uvicorn
 pika
 pyyaml
+minio
+pydantic-settings
+python-multipart

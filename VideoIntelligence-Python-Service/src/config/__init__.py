@@ -4,7 +4,9 @@ from fastapi import FastAPI
 from v2.nacos import NacosNamingService, NacosConfigService
 from config.nacos_config import nacos_client, nacos_register, nacos_deregister, nacos_config_center
 from config.rabbitmq_config import mq_client
+from config.resources import resources
 from service.consumer.file_consumer import run_consumer_in_thread
+from config.minio_config import register_minio
 
 
 # 创建namingService实例并生成注册和销毁方法 nacos加入fastapi的生命周期初始化
@@ -21,6 +23,13 @@ async def lifespan(_app: FastAPI):
 
     # 把配置挂到 app.state 上，其它模块通过 request.app.state.xxx 访问
     _app.state.file_config = file_dict
+
+    # 配置minio全局参数
+    client = register_minio(minio_config=file_dict["minio"])
+    bucket = file_dict["minio"].get("video-upload-bucket-name")
+    if bucket and not client.bucket_exists(bucket):
+        client.make_bucket(bucket)
+    resources.minio = client
 
     # 启动rabbitmq
     mq_client.connect()

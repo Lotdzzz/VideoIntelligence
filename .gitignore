@@ -167,3 +167,5 @@ celerybeat.pid
 /environment_value/windows-backup.reg
 
 /VideoIntelligence-Python-Service/.ai/
+
+/VideoIntelligence-Python-Service/downloads/

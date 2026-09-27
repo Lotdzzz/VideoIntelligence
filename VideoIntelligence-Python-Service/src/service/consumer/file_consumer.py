@@ -4,13 +4,16 @@ import threading
 from config.exception import SystemException
 from config.rabbitmq_config import RabbitMQClient
 from common import RabbitMQConfig
+from schemas.file.file_dto import ViFileDTO
+from service.pre_handler import pre_handler
 
 
 def callback(ch, method, properties, body):
     """处理接收到的消息"""
     try:
         data = json.loads(body)
-        # TODO: 在这里写你的业务逻辑，比如调用 service 里的处理函数
+        vi_file_dto = ViFileDTO.model_validate(data)
+        pre_handler(vi_file_dto)
 
         # 手动 ACK，确认消息已被处理
         ch.basic_ack(delivery_tag=method.delivery_tag)
