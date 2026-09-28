@@ -1,3 +1,5 @@
+import ffmpeg
+from typing import Optional
 from pathlib import Path
 from config.exception import SystemException
 from config.resources import resources
@@ -12,7 +14,22 @@ DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
 def pre_handler(file: ViFileDTO):
     # 获取视频文件
     file_path = get_video_file(file)
-    print(file_path)
+    if encode_video(file_path):
+        # 进行下一步处理
+        pass
+    else:
+        # 视频转码
+        pass
+
+
+# 判断视频编码进行转码
+def encode_video(url: Optional[str] = None):
+    probe = ffmpeg.probe(url)
+    for stream in probe['streams']:
+        if stream['codec_type'] == 'video':
+            if stream.get("codec_name") == "h264":
+                return True
+    return False
 
 
 # 从minio获取视频文件

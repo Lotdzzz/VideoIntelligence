@@ -7,3 +7,4 @@ pyyaml
 minio
 pydantic-settings
 python-multipart
+ffmpeg-python
