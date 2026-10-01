@@ -7,6 +7,7 @@ from minio_config.service import get_file_to_local
 def video_pre_handler(video: ViFileDTO):
     if video is None:
         raise FileNotFoundException(msg="video not found")
+    # 获取视频到本地
     url = fetch_video(video.objectName)
     print(url)
 
