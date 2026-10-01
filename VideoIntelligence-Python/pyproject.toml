@@ -1,0 +1,9 @@
+[project]
+name = "videointelligence-python"
+version = "1.0.0"
+requires-python = ">=3.14"
+[tool.uv.workspace]
+members = ["application/*"]
+
+[tool.uv]
+index-url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
