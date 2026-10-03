@@ -4,7 +4,18 @@ version = "1.0.0"
 requires-python = ">=3.14"
 
 dependencies = [
-    "vi-framework"
+    # 框架模块
+    "vi-framework",
+    # 视频下载模块
+    "yt-dlp",
+    # 视频解析依赖
+    "openai-whisper",
+    "opencv-python",
+    "transformers",
+    "torch",
+    "pillow",
+    "python-dotenv",
+    "openai",
 ]
 
 [build-system]
