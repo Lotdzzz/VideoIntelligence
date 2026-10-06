@@ -170,4 +170,4 @@ celerybeat.pid
 
 /VideoIntelligence-Python-Service/downloads/
 
-**/**/videos/
+**/**/output/

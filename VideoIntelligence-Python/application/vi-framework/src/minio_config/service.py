@@ -1,14 +1,10 @@
-from pathlib import Path
-
 from minio import Minio
+from constants.video_constants import VIDEOS_DIR
 from minio_config.config import create_minio_client
 from resources.global_resources import resources
 
 # 声明minio客户端全局变量
 minio_service: Minio
-# 设置本地存储文件路径 项目根目录下的 downloads 文件夹
-DOWNLOADS_DIR = Path(__file__).resolve().parents[2] / "videos"
-DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # minio启动器
@@ -30,6 +26,6 @@ def get_file_to_local(objectname: str) -> str:
     minio_service.fget_object(
         bucket_name=resources.minio.video_upload_bucket_name,
         object_name=objectname,
-        file_path=str(DOWNLOADS_DIR / objectname)
+        file_path=str(VIDEOS_DIR / objectname)
     )
-    return str(DOWNLOADS_DIR / objectname)
+    return objectname

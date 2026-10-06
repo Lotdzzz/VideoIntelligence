@@ -97,7 +97,12 @@ export interface UploadSummary {
 
   /** 上传失败的文件名与原因 */
   failed: { name: string; reason: string }[]
+
+  /** 上传成功但封面未生成的文件名与原因 */
+  warnings: { name: string; reason: string }[]
 }
+
+const VIDEO_METADATA_TIMEOUT_MS = 15_000
 
 /**
  * 从本地视频随机截取一帧，生成可上传的 JPEG 封面。
@@ -108,20 +113,38 @@ export interface UploadSummary {
 export async function captureVideoRandomFrame(file: File): Promise<File> {
   const objectUrl = URL.createObjectURL(file)
   const video = document.createElement('video')
-  video.preload = 'metadata'
+  video.preload = 'auto'
   video.muted = true
   video.playsInline = true
   video.src = objectUrl
 
   try {
     await new Promise<void>((resolve, reject) => {
-      const handleLoadedMetadata = () => {
+      let settled = false
+      let timeoutId = 0
+
+      const cleanup = () => {
+        window.clearTimeout(timeoutId)
+        video.removeEventListener('loadedmetadata', handleLoadedMetadata)
+        video.removeEventListener('loadeddata', handleLoadedData)
+        video.removeEventListener('canplay', handleCanPlay)
+        video.removeEventListener('seeked', handleSeeked)
+        video.removeEventListener('error', handleError)
+      }
+      const finish = (error?: Error) => {
+        if (settled) {
+          return
+        }
+        settled = true
+        cleanup()
+        error ? reject(error) : resolve()
+      }
+      const trySeek = () => {
         if (!video.videoWidth || !video.videoHeight) {
-          reject(new Error('无法读取视频画面尺寸'))
           return
         }
         if (!Number.isFinite(video.duration) || video.duration <= 0) {
-          reject(new Error('无法读取视频时长'))
+          finish(new Error('无法读取视频时长'))
           return
         }
         // 避开片头片尾，降低截到黑场、片头字幕或结束画面的概率。
@@ -129,12 +152,23 @@ export async function captureVideoRandomFrame(file: File): Promise<File> {
         const end = Math.max(start, video.duration * 0.9)
         video.currentTime = start + Math.random() * (end - start)
       }
-      const handleSeeked = () => resolve()
-      const handleError = () => reject(new Error('无法读取视频画面'))
+      const handleLoadedMetadata = () => {
+        trySeek()
+      }
+      const handleLoadedData = () => trySeek()
+      const handleCanPlay = () => trySeek()
+      const handleSeeked = () => finish()
+      const handleError = () => finish(new Error('无法读取视频画面'))
 
-      video.addEventListener('loadedmetadata', handleLoadedMetadata, {once: true})
-      video.addEventListener('seeked', handleSeeked, {once: true})
-      video.addEventListener('error', handleError, {once: true})
+      timeoutId = window.setTimeout(
+          () => finish(new Error('读取视频画面超时')),
+          VIDEO_METADATA_TIMEOUT_MS,
+      )
+      video.addEventListener('loadedmetadata', handleLoadedMetadata)
+      video.addEventListener('loadeddata', handleLoadedData)
+      video.addEventListener('canplay', handleCanPlay)
+      video.addEventListener('seeked', handleSeeked)
+      video.addEventListener('error', handleError)
       video.load()
     })
 
@@ -250,7 +284,7 @@ async function uploadOneFile(
     file: File,
     categoryId: number,
     notify: (task: UploadTaskProgress) => void,
-): Promise<void> {
+): Promise<string | undefined> {
   const task: UploadTaskProgress = {
     name: file.name,
     percent: 0,
@@ -260,9 +294,15 @@ async function uploadOneFile(
   }
   notify({...task})
 
-  // 1. 先从本地视频随机截帧并保存封面；失败时不创建视频分片任务
-  const coverFile = await captureVideoRandomFrame(file)
-  const cover = await withRetry(() => saveVideoCover(coverFile), PUT_RETRY_TIMES)
+  // 1. 尝试从本地视频随机截帧并保存封面；封面失败不阻断原视频上传
+  let cover = ''
+  let coverWarning: string | undefined
+  try {
+    const coverFile = await captureVideoRandomFrame(file)
+    cover = await withRetry(() => saveVideoCover(coverFile), PUT_RETRY_TIMES)
+  } catch (error) {
+    coverWarning = resolveUploadError(error)
+  }
 
   // 2. 取分片任务：服务端算好分片大小 / 分片数，并逐个签好预签名URL
   const mission = await getSliceInfo({
@@ -380,6 +420,7 @@ async function uploadOneFile(
   task.percent = 100
   task.status = 'success'
   notify({...task})
+  return coverWarning
 }
 
 /**
@@ -393,7 +434,7 @@ export async function uploadVideos(
     files: File[],
     options: UploadVideosOptions,
 ): Promise<UploadSummary> {
-  const summary: UploadSummary = {succeeded: [], failed: []}
+  const summary: UploadSummary = {succeeded: [], failed: [], warnings: []}
 
   for (let index = 0; index < files.length; index += 1) {
     const file = files[index]
@@ -407,8 +448,11 @@ export async function uploadVideos(
       if (invalidReason) {
         throw new Error(invalidReason)
       }
-      await uploadOneFile(file, options.categoryId, notify)
+      const coverWarning = await uploadOneFile(file, options.categoryId, notify)
       summary.succeeded.push(file.name)
+      if (coverWarning) {
+        summary.warnings.push({name: file.name, reason: coverWarning})
+      }
     } catch (error) {
       const reason = resolveUploadError(error)
       summary.failed.push({name: file.name, reason})

@@ -10,11 +10,11 @@ from rabbitmq.service import rabbitmq_starter, rabbitmq_unregister
 async def before_yield(_app: FastAPI):
     # 启动naCos以及挂载配置中心
     await nacos_starter(app=_app)
+    # 注册minio
+    await minio_starter()
     # 启动rabbitmq 创建消费者
     await rabbitmq_starter(app=_app)
     await analysis_consumer_starter()
-    # 注册minio
-    await minio_starter()
 
 
 # 结束后的活动
