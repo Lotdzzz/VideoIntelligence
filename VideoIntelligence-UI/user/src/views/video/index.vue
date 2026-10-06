@@ -558,9 +558,18 @@ const handleUploadResult = async (summary: UploadSummary, targetCategoryId: numb
   const targetName =
       categories.value.find((item) => item.id === targetCategoryId)?.categoryName ?? ''
   const categoryLabel = targetName ? `分类「${targetName}」` : '所选分类'
+  const coverWarnings = summary.warnings
+      .map((item) => `${item.name}（${item.reason}）`)
+      .join('；')
 
   if (summary.failed.length === 0) {
-    ElMessage.success(`已上传 ${summary.succeeded.length} 个视频到${categoryLabel}`)
+    if (summary.warnings.length > 0) {
+      ElMessage.warning(
+          `已上传 ${summary.succeeded.length} 个视频到${categoryLabel}，部分封面生成失败：${coverWarnings}`,
+      )
+    } else {
+      ElMessage.success(`已上传 ${summary.succeeded.length} 个视频到${categoryLabel}`)
+    }
   } else if (summary.succeeded.length === 0) {
     ElMessage.error(`上传失败：${summary.failed[0]?.reason ?? '请稍后重试'}`)
     return
@@ -568,8 +577,11 @@ const handleUploadResult = async (summary: UploadSummary, targetCategoryId: numb
     const failedDetail = summary.failed
         .map((item) => `${item.name}（${item.reason}）`)
         .join('；')
+    const warningDetail = summary.warnings.length > 0
+        ? `；封面生成失败：${coverWarnings}`
+        : ''
     ElMessage.warning(
-        `成功 ${summary.succeeded.length} 个，失败 ${summary.failed.length} 个：${failedDetail}`,
+        `成功 ${summary.succeeded.length} 个，失败 ${summary.failed.length} 个：${failedDetail}${warningDetail}`,
     )
   }
 
