@@ -87,7 +87,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public Result<Object> runtimeException(RuntimeException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
-        log.error("请求地址'{}',发生文件上传异常.", requestURI, e);
+        log.error("请求地址'{}',发生运行时异常.", requestURI, e);
+        return Result.error(e.getMessage());
+    }
+
+    /**
+     * 最终兜底异常
+     */
+    @ExceptionHandler(Exception.class)
+    public Result<Object> finalException(Exception e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',发生未知异常.", requestURI, e);
         return Result.error(e.getMessage());
     }
 }
