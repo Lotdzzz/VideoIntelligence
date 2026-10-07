@@ -1,7 +1,8 @@
 import json
-import threading
 import pika
 from application_config import RabbitMQConfig
+from cosumer.thread_factory.consumer_thread_pool import worker_consumers
+from entity.model.consumer_worker import WorkerConsumer
 from entity.schemas.dto.file_dto import ViFileDTO
 from exception.system_exception import SystemException
 from rabbitmq.config import parameters
@@ -26,28 +27,36 @@ def call_back(ch, method, properties, body):
 
 
 # 开始消费消息
-def consumer():
+def consumer(worker_id: int):
+    # 每个消费者一个连接 一个线程 保证任务处理不冲突
     # 重新建立连接 不干扰主线程连接
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
-    channel.basic_qos(prefetch_count=1)
+
+    # 设置消费者处理信息
+    channel.basic_qos(prefetch_count=10)
     channel.basic_consume(
         queue=RabbitMQConfig.queue_routing_key,
         on_message_callback=call_back,
     )
+
+    # 存入消费者数组用于后续销毁
+    worker_consumers[worker_id] = WorkerConsumer(
+        channel=channel,
+        connection=connection,
+        worker_id=worker_id)
+    print(f"[Worker-{worker_id}] consumer Init")
+
     try:
+        # 阻塞开启
         channel.start_consuming()
     except Exception as e:
         print(f"消费者运行异常: {e}")
         raise SystemException(msg="RabbitMQ Running error")
     finally:
-        connection.close()
-
-
-# 另起线程启动消费者
-async def analysis_consumer_starter():
-    # 在这里新建连接与通道解开与注册线程的耦合 并守护主线程
-    threading.Thread(
-        target=consumer,
-        daemon=True,
-    ).start()
+        try:
+            if connection.is_open:
+                connection.close()
+                print(f"[Worker-{worker_id}] connection closed")
+        except Exception as e:
+            print(f"[Worker-{worker_id}] close error: {e}")

@@ -1,4 +1,4 @@
-from cosumer.analysis_consumer import analysis_consumer_starter
+from cosumer.thread_factory.thread_pool_manager import init_thread_pool, destroy_thread_pool
 from minio_config.service import minio_starter
 from nacos.service import *
 from contextlib import asynccontextmanager
@@ -14,7 +14,8 @@ async def before_yield(_app: FastAPI):
     await minio_starter()
     # 启动rabbitmq 创建消费者
     await rabbitmq_starter(app=_app)
-    await analysis_consumer_starter()
+    # 启动线程池
+    await init_thread_pool()
 
 
 # 结束后的活动
@@ -23,6 +24,8 @@ async def after_yield(_app: FastAPI):
     await nacos_deregister(app=_app)
     # 销毁mq
     await rabbitmq_unregister(app=_app)
+    # 销毁线程池
+    await destroy_thread_pool()
 
 
 # 创建全局异步上下文管理器
