@@ -1,12 +1,19 @@
 import json
 import pika
+import task.dispatcher.task_dispatcher as task_dispatcher
 from application_config import RabbitMQConfig
-from cosumer.thread_factory.consumer_thread_pool import worker_consumers
+from service.video_handler.video_handler import video_handler
+from task.thread_factory.consumer_thread_pool import worker_consumers
 from entity.model.consumer_worker import WorkerConsumer
 from entity.schemas.dto.file_dto import ViFileDTO
 from exception.system_exception import SystemException
 from rabbitmq.config import parameters
-from service.pre_handler.pre_handler import video_pre_handler
+
+"""
+本模块的主要任务是初始化指定数量的worker线程之后
+worker接收到任务就丢给task dispatcher调度器
+调度器内部维护轮询机制去分配任务给aio线程组
+"""
 
 
 # 定义回调方法
@@ -15,10 +22,36 @@ def call_back(ch, method, properties, body):
     try:
         data = json.loads(body)
         vi_file = ViFileDTO.model_validate(data)
-        video_pre_handler(video=vi_file)
 
-        # 手动 ACK，确认消息已被处理
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+        if task_dispatcher.global_task_dispatcher is None:
+            print(f"task_dispatcher is none")
+            return
+
+        # 使用调度器分配任务获取结果
+        future = task_dispatcher.global_task_dispatcher.submit(video_handler(vi_file))
+
+        # 异步回调ack 当任务完成后才会ack
+        def task_done(f):
+            try:
+                # 获取任务结果
+                f.result()
+                # 注意：这里不是直接 ack
+                ch.connection.add_callback_threadsafe(
+                    lambda: ch.basic_ack(
+                        delivery_tag=method.delivery_tag
+                    )
+                )
+            except Exception as e:
+                print(f"task failed: {e}")
+                ch.connection.add_callback_threadsafe(
+                    lambda: ch.basic_nack(
+                        delivery_tag=method.delivery_tag,
+                        requeue=True
+                    )
+                )
+
+        future.add_done_callback(task_done)
+
     except Exception as e:
         print(e)
         # 处理失败，拒绝消息并重新入队（或者根据业务逻辑决定是否丢弃）

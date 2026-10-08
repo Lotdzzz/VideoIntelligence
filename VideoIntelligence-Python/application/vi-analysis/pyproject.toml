@@ -1,7 +1,7 @@
 [project]
 name = "vi-analysis"
 version = "1.0.0"
-requires-python = ">=3.14"
+requires-python = ">=3.11,<3.13"
 
 dependencies = [
     # 框架模块
@@ -9,13 +9,15 @@ dependencies = [
     # 视频下载模块
     "yt-dlp",
     # 视频解析依赖
-    "openai-whisper",
     "opencv-python",
     "transformers",
     "torch",
     "pillow",
     "python-dotenv",
     "openai",
+    "funasr",
+    "IPython",
+     "torchaudio",
 ]
 
 [build-system]

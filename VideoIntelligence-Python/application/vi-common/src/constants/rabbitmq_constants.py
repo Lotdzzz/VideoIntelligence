@@ -6,4 +6,4 @@ CHANNEL = "channel"
 WORKER_COUNTS = 10
 
 # 任务管理器线程数
-TASK_COUNTS = 10
+TASK_COUNTS = 3

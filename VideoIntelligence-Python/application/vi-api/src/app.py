@@ -1,4 +1,4 @@
-from cosumer.thread_factory.thread_pool_manager import init_thread_pool, destroy_thread_pool
+from task.thread_factory.thread_pool_manager import init_thread_pool, destroy_thread_pool
 from minio_config.service import minio_starter
 from nacos.service import *
 from contextlib import asynccontextmanager
