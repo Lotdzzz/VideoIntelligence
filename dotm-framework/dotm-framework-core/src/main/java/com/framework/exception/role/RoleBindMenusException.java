@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RoleBindMenusException extends RoleException {
     public RoleBindMenusException(String message) {
-        super(ExceptionConstants.ROLE_BIND_MENUS);
+        super(ExceptionConstants.ROLE_BIND_MENUS + message);
         log.info("{}: {}", ExceptionConstants.ROLE_BIND_MENUS, message);
     }
 }

@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UploadPutException extends UploadException {
     public UploadPutException(String message) {
-        super(ExceptionConstants.UPLOAD_PUT_ERROR);
+        super(ExceptionConstants.UPLOAD_PUT_ERROR + message);
         log.info("{}: {}", ExceptionConstants.UPLOAD_PUT_ERROR, message);
     }
 }

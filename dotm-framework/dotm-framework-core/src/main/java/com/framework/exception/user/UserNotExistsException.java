@@ -15,7 +15,7 @@ public class UserNotExistsException extends UserException {
     private static final long serialVersionUID = 1L;
 
     public UserNotExistsException(String message) {
-        super(ExceptionConstants.USER_NOT_EXISTS);
+        super(ExceptionConstants.USER_NOT_EXISTS + message);
         log.info("{}: {}", ExceptionConstants.USER_NOT_EXISTS, message);
     }
 }

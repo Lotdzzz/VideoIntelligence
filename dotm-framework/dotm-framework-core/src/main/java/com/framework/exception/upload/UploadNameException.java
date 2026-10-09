@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UploadNameException extends UploadException {
 
     public UploadNameException(String message) {
-        super(ExceptionConstants.FILE_NAME_INVALID);
+        super(ExceptionConstants.FILE_NAME_INVALID + message);
         log.info("{}: {}", ExceptionConstants.FILE_NAME_INVALID, message);
     }
 }

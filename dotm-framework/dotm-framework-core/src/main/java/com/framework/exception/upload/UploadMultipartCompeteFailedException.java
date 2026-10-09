@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UploadMultipartCompeteFailedException extends UploadException {
 
     public UploadMultipartCompeteFailedException(String message) {
-        super(ExceptionConstants.FILE_PART_COMPLETE_FAILED);
+        super(ExceptionConstants.FILE_PART_COMPLETE_FAILED + message);
         log.info("{}: {}", ExceptionConstants.FILE_PART_COMPLETE_FAILED, message);
     }
 

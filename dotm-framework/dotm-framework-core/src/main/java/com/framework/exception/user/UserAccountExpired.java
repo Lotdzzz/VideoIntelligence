@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserAccountExpired extends UserException {
 
     public UserAccountExpired(String message) {
-        super(ExceptionConstants.USER_ACCOUNT_EXPIRED);
+        super(ExceptionConstants.USER_ACCOUNT_EXPIRED + message);
         log.info("{}, {}", ExceptionConstants.USER_ACCOUNT_EXPIRED, message);
     }
 

@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UploadEmptyException extends UploadException {
 
     public UploadEmptyException(String message) {
-        super(ExceptionConstants.FILE_NULL);
+        super(ExceptionConstants.FILE_NULL + message);
         log.info("{}: {}", ExceptionConstants.FILE_NULL, message);
     }
 }

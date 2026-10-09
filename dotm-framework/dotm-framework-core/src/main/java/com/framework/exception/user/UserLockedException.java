@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserLockedException extends UserException {
 
     public UserLockedException(String message) {
-        super(ExceptionConstants.USER_LOCKED);
+        super(ExceptionConstants.USER_LOCKED + message);
         log.info("{}: {}", ExceptionConstants.USER_LOCKED, message);
     }
 }

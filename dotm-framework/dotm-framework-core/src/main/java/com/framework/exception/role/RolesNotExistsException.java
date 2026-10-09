@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RolesNotExistsException extends RoleException {
 
     public RolesNotExistsException(String message) {
-        super(ExceptionConstants.ROLE_NOT_EXISTS);
+        super(ExceptionConstants.ROLE_NOT_EXISTS + message);
         log.info("{}: {}", ExceptionConstants.ROLE_NOT_EXISTS, message);
     }
 }

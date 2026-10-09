@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UploadPreSignException extends UploadException {
 
     public UploadPreSignException(String message) {
-        super(ExceptionConstants.FILE_PRE_SIGN_ERROR);
+        super(ExceptionConstants.FILE_PRE_SIGN_ERROR + message);
         log.info("{}: {}", ExceptionConstants.FILE_PRE_SIGN_ERROR, message);
     }
 
