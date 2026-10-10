@@ -118,6 +118,28 @@ public class ViFileServiceImpl extends ServiceImpl<ViFileMapper, ViFile>
     }
 
     /**
+     * 新增资源文件并返回DTO
+     *
+     * @param dto 入参
+     * @return 新增后的DTO
+     */
+    @Override
+    public ViFileDTO addFileAndReturnDTO(ViFileDTO dto) {
+        //DTO转换为实体（忽略id，由数据库自增生成）
+        ViFile viFile = new ViFile();
+        BeanUtils.copyProperties(dto, viFile, "id");
+        //保存
+        boolean saved = save(viFile);
+        if (saved) {
+            // 将保存后的实体转换回DTO并返回
+            dto.setId(viFile.getId()); // 设置生成的ID
+            return dto;
+        } else {
+            return null; // 或者抛出异常，根据你的需求
+        }
+    }
+
+    /**
      * 修改资源文件
      */
     @Override

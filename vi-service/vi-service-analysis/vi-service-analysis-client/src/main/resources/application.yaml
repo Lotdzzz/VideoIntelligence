@@ -1,0 +1,19 @@
+server:
+  port: 1003
+spring:
+  profiles:
+    active:
+      - dev
+      - common
+  application:
+    name: service-analysis
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+      config:
+        server-addr: ${NACOS_SERVER_HOST_PORT}
+  config:
+    import:
+      - optional:nacos:application-dev.yaml?refreshEnabled=true&group=${NACOS_GROUP}
+      - optional:nacos:application-common.yaml?refreshEnabled=true&group=${NACOS_GROUP}

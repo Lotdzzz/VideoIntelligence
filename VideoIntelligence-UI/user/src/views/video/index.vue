@@ -13,6 +13,7 @@ import {
 import {RESOURCE_PAGE_SIZE} from '@/api/fileResource'
 import {listUserFileCategories} from '@/api/fileCategory'
 import {resolveVideoLink} from '@/api/videoLink'
+import {getAnalysisResult} from '@/api/analysisResult'
 import {useVideoList} from '@/features/video'
 import {
   VIDEO_ACCEPT,
@@ -171,6 +172,23 @@ watch(resources, () => {
 /** 回到「全部视频」：清掉 URL 上的分类ID，与侧边栏「全部视频」入口行为一致 */
 const goAllVideos = () => {
   router.push(routesConstants.VIDEO)
+}
+
+/** 点击封面后查询分析结果，再跳转到结果页。 */
+const handleResourceClick = async (item: FileVO) => {
+  if (batchMode.value || !isLogin.value) {
+    return
+  }
+  try {
+    const result = await getAnalysisResult(userStore.userInfo.userId, item.id)
+    await router.push({
+      path: routesConstants.VIDEO_ANALYSIS,
+      query: { userId: String(userStore.userInfo.userId), taskId: String(item.id) },
+      state: { analysisResult: JSON.stringify(result) },
+    })
+  } catch (error) {
+    ElMessage.error(resolveErrorMessage(error, '分析结果加载失败，请稍后重试'))
+  }
 }
 
 // 分类切换：回到第一页再加载（同一组件内切换分类不会重挂载，页码必须显式重置）
@@ -730,6 +748,7 @@ const handleAction = (action: string) => {
             :key="item.id"
             class="resource-card"
             :class="{ 'is-selected': batchMode && selectedIds.includes(item.id) }"
+          @click="handleResourceClick(item)"
         >
           <div class="resource-cover">
             <!-- 多选模式：封面左上角出现复选框（@click.stop 避免冒泡触发卡片其他行为） -->
@@ -772,7 +791,7 @@ const handleAction = (action: string) => {
             </div>
           </div>
 
-          <div class="resource-actions">
+          <div class="resource-actions" @click.stop>
             <!-- 非多选模式才展示单条操作：多选模式下只用封面复选框勾选，避免操作混淆 -->
             <template v-if="!batchMode">
               <!--
@@ -1166,6 +1185,7 @@ const handleAction = (action: string) => {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  cursor: pointer;
   border: 1px solid #e4e7ed;
   border-radius: 8px;
   background: #ffffff;

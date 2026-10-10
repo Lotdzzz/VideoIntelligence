@@ -37,6 +37,10 @@ export const routesConstants = {
     FILE_PREDESIGN_SLICE_COMPLETE: '/file/user/predesign/slice/upload',
     //解析外部视频链接并返回可选择的视频条目（演示，不直接落库）
     FILE_LINK_RECEIVE: '/file/link/receive',
+    //查询视频分析结果（后拼 /{userId}/{taskId}）
+    ANALYSIS_RESULT: '/analysis/result',
+    //视频分析结果页
+    VIDEO_ANALYSIS: '/video/analysis',
 }
 
 /**

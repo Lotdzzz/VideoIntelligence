@@ -13,3 +13,7 @@ com.framework.config.file.FileDeadLineQueue
 
 com.framework.config.deadline.DeadLineExchange
 com.framework.config.deadline.DeadLineBinding
+
+com.framework.config.analysis.AnalysisResultBinding
+com.framework.config.analysis.AnalysisResultExchange
+com.framework.config.analysis.AnalysisResultQueue

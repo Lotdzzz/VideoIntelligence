@@ -12,6 +12,12 @@
     <artifactId>dotm-framework-common</artifactId>
 
     <dependencies>
+        <!--fastjson2-->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+        </dependency>
+
         <!--tool-->
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -2,6 +2,7 @@ import json
 import pika
 import task.dispatcher.task_dispatcher as task_dispatcher
 from application_config import RabbitMQConfig
+from publisher.mq_publisher import publish_analysis_result
 from service.video_handler.video_handler import video_handler
 from task.thread_factory.consumer_thread_pool import worker_consumers
 from entity.model.consumer_worker import WorkerConsumer
@@ -24,8 +25,7 @@ def call_back(ch, method, properties, body):
         vi_file = ViFileDTO.model_validate(data)
 
         if task_dispatcher.global_task_dispatcher is None:
-            print(f"task_dispatcher is none")
-            return
+            raise SystemException("task dispatcher is None")
 
         # 使用调度器分配任务获取结果
         future = task_dispatcher.global_task_dispatcher.submit(video_handler(vi_file))
@@ -34,7 +34,13 @@ def call_back(ch, method, properties, body):
         def task_done(f):
             try:
                 # 获取任务结果
-                f.result()
+                result = json.loads(f.result())
+
+                result["data"] = vi_file.model_dump(mode="json")
+
+                # 发送到解析成品队列
+                publish_analysis_result(result)
+
                 # 注意：这里不是直接 ack
                 ch.connection.add_callback_threadsafe(
                     lambda: ch.basic_ack(
@@ -44,9 +50,11 @@ def call_back(ch, method, properties, body):
             except Exception as e:
                 print(f"task failed: {e}")
                 ch.connection.add_callback_threadsafe(
-                    lambda: ch.basic_nack(
-                        delivery_tag=method.delivery_tag,
-                        requeue=True
+                    lambda: handle_failed_message(
+                        ch,
+                        method,
+                        properties,
+                        body
                     )
                 )
 
@@ -55,8 +63,54 @@ def call_back(ch, method, properties, body):
     except Exception as e:
         print(e)
         # 处理失败，拒绝消息并重新入队（或者根据业务逻辑决定是否丢弃）
-        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+        # 失败处理也切回 pika 线程
+        ch.connection.add_callback_threadsafe(
+            lambda: handle_failed_message(
+                ch,
+                method,
+                properties,
+                body
+            )
+        )
         raise SystemException(msg="RabbitMQ Call back error")
+
+
+# 消息处理失败后的处理
+def handle_failed_message(ch, method, properties, body):
+    headers = properties.headers or {}
+
+    retry_count = headers.get("x-retry-count", 0)
+
+    if retry_count >= 3:
+        print("retry exceeded 3 times, send to DLQ")
+
+        ch.basic_nack(
+            delivery_tag=method.delivery_tag,
+            requeue=False
+        )
+        return
+
+    new_headers = dict(headers)
+    new_headers["x-retry-count"] = retry_count + 1
+
+    ch.basic_publish(
+        exchange=method.exchange,
+        routing_key=method.routing_key,
+        body=body,
+        properties=pika.BasicProperties(
+            content_type=properties.content_type,
+            content_encoding=properties.content_encoding,
+            headers=new_headers,
+            delivery_mode=properties.delivery_mode,
+        )
+    )
+
+    # 新消息 publish 完，再 ACK 掉旧消息
+    ch.basic_ack(
+        delivery_tag=method.delivery_tag
+    )
+
+    print(f"retry message: {retry_count + 1}/3")
 
 
 # 开始消费消息

@@ -22,14 +22,23 @@ async def rabbitmq_starter(app: FastAPI):
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
         # 声明队列，durable=True 保证 RabbitMQ 重启后队列不丢失
-        channel.queue_declare(queue=RabbitMQConfig.queue_routing_key, durable=True)
+        channel.queue_declare(
+            queue=RabbitMQConfig.queue_routing_key,
+            durable=True,
+            arguments={
+                'x-dead-letter-exchange': RabbitMQConfig.dead_letter_queue_exchange,
+                'x-dead-letter-routing-key': RabbitMQConfig.dead_letter_queue_key,
+            }
+        )
+        channel.queue_declare(queue=RabbitMQConfig.dead_letter_queue_key, durable=True)
+        channel.queue_declare(queue=RabbitMQConfig.analysis_result_queue, durable=True)
 
         # 将连接和通道保存到app
         app.state.connection = connection
         app.state.channel = channel
         print("RabbitMQ connection successfully")
     except Exception as e:
-        raise SystemException(msg="RabbitMQ connection failed")
+        raise SystemException(msg=f"RabbitMQ connection failed {e}")
 
 
 # 注销rabbitmq

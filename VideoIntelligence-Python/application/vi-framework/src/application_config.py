@@ -25,6 +25,10 @@ class RabbitMQConfig:
     rabbitmq_server_password = getenv("RABBITMQ_SERVER_PASSWORD")
     rabbitmq_vhost = getenv("RABBITMQ_VHOST", "/")
     queue_routing_key = "file.analysis"
+    dead_letter_queue_key = "file.dead.letter"
+    dead_letter_queue_exchange = "dead.letter.exchange"
+    analysis_result_queue = "analysis.result"
+    analysis_result_exchange = "analysis.result.exchange"
 
 
 # minio配置

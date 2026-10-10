@@ -38,6 +38,12 @@ const router = createRouter({
                     component: () => import('@/views/video/index.vue'),
                     meta: { title: '视频' },
                 },
+                {
+                    path: 'analysis',
+                    name: 'VideoAnalysis',
+                    component: () => import('@/views/video/analysis.vue'),
+                    meta: { title: '分析结果' },
+                },
             ],
         },
         {

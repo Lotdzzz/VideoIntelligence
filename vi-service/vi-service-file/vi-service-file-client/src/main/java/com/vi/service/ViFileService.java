@@ -7,11 +7,19 @@ import com.vi.entity.model.ViFile;
 import com.vi.entity.vo.ViFileVO;
 
 /**
-* @author dotm
-* @description 针对表【vi_file(资源文件表)】的数据库操作Service
-* @createDate 2026-09-18 10:00:00
-*/
+ * @author dotm
+ * @description 针对表【vi_file(资源文件表)】的数据库操作Service
+ * @createDate 2026-09-18 10:00:00
+ */
 public interface ViFileService extends IService<ViFile> {
+
+    /**
+     * 新增资源文件并返回DTO
+     *
+     * @param dto 入参
+     * @return 新增后的DTO
+     */
+    public ViFileDTO addFileAndReturnDTO(ViFileDTO dto);
 
     /**
      * 分页查询资源文件

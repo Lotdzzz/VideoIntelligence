@@ -1,4 +1,4 @@
-from service.LLM_build_result.service import ask_deepseek
+from service.LLM_build_result.service import ask_deepseek, video_prompt
 from service.build_context.service import build_context
 from service.build_timeline.service import build_timeline
 from service.describe_frames.service import describe_frames
@@ -22,47 +22,47 @@ async def video_handler(video: ViFileDTO):
     filename = await fetch_video(video.objectName)
     if filename is None:
         print("filename is None")
-        return
+        return None
 
     # 提取音频
     audio_path = await extract_audio(filename=filename)
     if audio_path is None:
         print("audio_path is None")
-        return
+        return None
 
     # 语音转文字
     segments = await transcribe_audio(audio_path=audio_path)
     if segments is None:
         print("segments is None")
-        return
+        return None
 
     # 抽帧
     frames_path = await extract_frames(filename=filename, segments=segments)
     if frames_path is None:
         print("frames_path is None")
-        return
+        return None
 
     # 关键帧画面描述
     descriptions = await describe_frames(frame_paths=frames_path)
     if descriptions is None:
         print("descriptions is None")
-        return
+        return None
 
     # 合并时间线
     timelines = await build_timeline(segments=segments, descriptions=descriptions)
     if timelines is None or len(timelines) == 0:
         print("timelines is None")
-        return
+        return None
 
     # 构建上下文
     context = await build_context(timeline=timelines)
     if context is None:
         print("context is None")
-        return
+        return None
 
     # 调用大语言模型
-    response = await ask_deepseek(context=context, question="生成知识点大纲以及基于JSMind的思维导图大纲")
+    response = await ask_deepseek(context=context, question=video_prompt)
     if response is None:
         print("response is None")
-        return
-    print(response)
+        return None
+    return response

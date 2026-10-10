@@ -124,10 +124,10 @@ public class IVideoUploadServiceImpl implements IVideoUploadService {
                 minioProperties.getVideoUploadBucketName());
 
         // 保存文件持久化到数据库
-        boolean isAdded = fileService.addFile(viFileDTO);
+        viFileDTO = fileService.addFileAndReturnDTO(viFileDTO);
 
         // 将视频实体通过消息队列发给python微服务进行视频分析处理
-        if (isAdded) {
+        if (viFileDTO != null) {
             fileProducer.send(viFileDTO);
             return true;
         }

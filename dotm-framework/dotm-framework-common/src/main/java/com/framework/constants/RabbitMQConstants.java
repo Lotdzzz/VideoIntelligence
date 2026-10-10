@@ -35,4 +35,14 @@ public class RabbitMQConstants {
      * 死信交换机
      */
     public static final String DEAD_LETTER_EXCHANGE = "dead.letter.exchange";
+
+    /**
+     * 分析结果key
+     */
+    public static final String ANALYSIS_RESULT_ROUTING_KEY = "analysis.result";
+
+    /**
+     * 分析结果交换机
+     */
+    public static final String ANALYSIS_RESULT_EXCHANGE = "analysis.result.exchange";
 }

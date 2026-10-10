@@ -60,6 +60,12 @@ spring:
                 - Path=/file/**
               filters:
                 - StripPrefix=0
+            - id: service-analysis
+              uri: lb://service-analysis
+              predicates:
+                - Path=/analysis/**
+              filters:
+                - StripPrefix=0
           default-filters:
             #将所有的请求头（包含 X-Forwarded-For）透传给下游微服务
             - PreserveHostHeader
