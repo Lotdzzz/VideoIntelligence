@@ -9,3 +9,7 @@ com.framework.config.auth.AuthLogQueue
 com.framework.config.file.FileURLQueue
 com.framework.config.file.FileExchange
 com.framework.config.file.FileBinding
+com.framework.config.file.FileDeadLineQueue
+
+com.framework.config.deadline.DeadLineExchange
+com.framework.config.deadline.DeadLineBinding

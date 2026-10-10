@@ -22,7 +22,17 @@ public class RabbitMQConstants {
     public static final String URL_ROUTING_KEY = "file.analysis";
 
     /**
+     * 文件模块死信队列key
+     */
+    public static final String FILE_DEAD_LETTER_ROUTING_KEY = "file.dead.letter";
+
+    /**
      * 文件模块交换机
      */
     public static final String FILE_EXCHANGE = "file.exchange";
+
+    /**
+     * 死信交换机
+     */
+    public static final String DEAD_LETTER_EXCHANGE = "dead.letter.exchange";
 }
